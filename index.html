@@ -1,0 +1,3109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Neon Sky Rush — Space Arcade</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #1e1b4b 0%, #090d16 75%);
+      color: #f8fafc;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .phone-frame {
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 40px rgba(99, 102, 241, 0.35);
+      border: 6px solid #1e293b;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); }
+      50% { transform: scale(1.04); box-shadow: 0 0 30px rgba(245, 158, 11, 0.8); }
+    }
+    .btn-rewarded {
+      animation: pulseGlow 1.8s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4">
+
+  <!-- Main Mobile Portrait Game Container (Full-Height Canvas, No Top Header Bar) -->
+  <main class="w-full flex items-center justify-center">
+    <div class="relative w-full max-w-[400px] h-[720px] sm:h-[760px] rounded-[36px] phone-frame bg-slate-950 overflow-hidden flex flex-col shrink-0">
+
+      <!-- In-Game Top HUD -->
+      <div class="relative z-10 flex items-center justify-between px-4 pt-3 pb-2 bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none">
+        <div class="flex items-center gap-2">
+          <div class="bg-slate-900/90 border border-indigo-500/40 rounded-xl px-3 py-1 shadow">
+            <span class="text-[10px] uppercase font-bold tracking-wider text-indigo-300 block leading-none">Score</span>
+            <span id="hud-score" class="text-lg font-black text-white tabular-nums">0</span>
+          </div>
+          <div id="hud-combo-badge" class="hidden bg-gradient-to-r from-fuchsia-600 to-pink-500 border border-pink-300 rounded-xl px-2.5 py-0.5 text-xs font-black text-white shadow animate-bounce">
+            x1
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 pointer-events-auto">
+          <button id="btn-use-boost" type="button" class="px-2.5 py-1.5 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 border border-indigo-400/60 text-white font-black text-[11px] transition shadow" title="Activate Shield (25 coins)">
+            🛡️ Shield (25c)
+          </button>
+          <div class="bg-amber-950/90 border border-amber-400/50 rounded-xl px-2.5 py-1 flex items-center gap-1.5 shadow">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"></span>
+            <span id="hud-coins" class="text-sm font-black text-amber-300 tabular-nums">0</span>
+          </div>
+          <button id="btn-pause-game" type="button" class="w-8 h-8 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-white font-black text-xs flex items-center justify-center transition" title="Pause">
+            II
+          </button>
+        </div>
+      </div>
+
+      <!-- Magic Tiles 3 Style Stars & Crowns Progress Bar -->
+      <div id="hud-crown-bar" class="relative z-10 mx-4 mb-1.5 px-3 py-1.5 rounded-2xl bg-slate-900/90 border border-indigo-500/40 shadow-md pointer-events-none">
+        <div class="flex items-center justify-between text-[11px] font-black mb-1">
+          <span id="crown-phase-label" class="text-amber-300 tracking-wide">⭐ STARS TIER (0/3)</span>
+          <div id="crown-icons-row" class="flex items-center gap-1 text-sm leading-none">
+            <span id="mt-icon-1" class="opacity-30 transition-all duration-300">⭐</span>
+            <span id="mt-icon-2" class="opacity-30 transition-all duration-300">⭐</span>
+            <span id="mt-icon-3" class="opacity-30 transition-all duration-300">⭐</span>
+          </div>
+        </div>
+        <div class="relative w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-700/80">
+          <div id="crown-progress-fill" class="h-full bg-gradient-to-r from-cyan-400 via-amber-400 to-pink-500 transition-all duration-150" style="width: 0%;"></div>
+          <div class="absolute top-0 bottom-0 left-1/3 w-0.5 bg-white/40"></div>
+          <div class="absolute top-0 bottom-0 left-2/3 w-0.5 bg-white/40"></div>
+        </div>
+      </div>
+
+      <!-- Boss Health Bar Banner -->
+      <div id="hud-boss-bar" class="hidden relative z-10 mx-4 mb-1 px-3 py-1.5 rounded-xl bg-rose-950/95 border border-rose-500/70 shadow-lg pointer-events-none">
+        <div class="flex items-center justify-between text-[11px] font-black text-rose-200 mb-1">
+          <span id="hud-boss-name">👾 BOSS OMEGA CRUISER</span>
+          <span id="hud-boss-hp-text" class="font-mono text-rose-300">⚡ AUTO-LASER • 100%</span>
+        </div>
+        <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-rose-500/40">
+          <div id="hud-boss-hp-fill" class="h-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-300 transition-all duration-100" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- Active Powerups Banner -->
+      <div id="hud-powerup-bar" class="hidden relative z-10 mx-4 mb-1 px-3 py-1 rounded-xl bg-indigo-950/90 border border-cyan-400/60 flex items-center justify-between text-xs shadow pointer-events-none">
+        <span id="hud-powerup-label" class="font-extrabold text-cyan-200">🛡️ Shield Active!</span>
+        <span id="hud-powerup-timer" class="font-mono font-bold text-cyan-300">5.0s</span>
+      </div>
+
+      <!-- HTML5 Canvas Stage -->
+      <div id="canvas-wrapper" class="relative flex-1 w-full h-full min-h-[420px] overflow-hidden bg-slate-950">
+        <canvas id="game-canvas" class="absolute inset-0 w-full h-full"></canvas>
+
+        <!-- START / HOME MENU OVERLAY -->
+        <div id="overlay-menu" class="absolute inset-0 z-20 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-between p-5 text-center">
+          <div class="w-full flex items-center justify-between text-xs bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-300 gap-2">
+            <span>🏆 Best: <strong id="menu-high-score" class="text-amber-400 font-black">0</strong></span>
+            <span>👑 Crowns: <strong id="menu-best-crowns" class="text-pink-400 font-black">0</strong></span>
+            <span>🎮 Runs: <strong id="menu-games-played" class="text-cyan-400 font-black">0</strong></span>
+            <button id="btn-menu-settings" type="button" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white flex items-center justify-center text-sm shadow transition" title="Settings">
+              ⚙️
+            </button>
+          </div>
+
+          <div class="my-auto flex flex-col items-center">
+            <div class="px-3.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/50 text-cyan-300 text-xs font-extrabold mb-3">
+              ⚡ SPACE ARCADE RUSH ⚡
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-400 to-pink-400 mb-2">
+              NEON SKY RUSH
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 max-w-[285px] mb-5 leading-relaxed">
+              Tap left or right on the screen to switch lanes, dodge red laser barriers, and defeat 10 Space Bosses!
+            </p>
+
+            <!-- Mode Selector -->
+            <div class="w-64 bg-slate-900/95 border border-slate-700/80 rounded-2xl p-1.5 grid grid-cols-2 gap-1.5 mb-2.5">
+              <button id="btn-mode-boss" type="button" class="py-2 px-2 rounded-xl bg-indigo-600 text-white font-black text-[11px] transition shadow">
+                👾 10 BOSSES (STEADY)
+              </button>
+              <button id="btn-mode-free" type="button" class="py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] transition">
+                🔥 FREE MODE
+              </button>
+            </div>
+            <div id="mode-desc-banner" class="w-64 text-[11px] text-cyan-300 font-semibold mb-2 bg-indigo-950/60 border border-indigo-500/30 rounded-xl py-1.5 px-2.5">
+              10 Bosses Mode: steady pace that speeds up over time with 10 unique Bosses!
+            </div>
+
+            <button id="btn-start-game" type="button" class="w-64 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-pink-500 hover:opacity-95 text-white font-black text-base shadow-xl transition transform active:scale-95 mb-2">
+              ▶ PLAY SOLO
+            </button>
+
+            <button id="btn-open-multiplayer" type="button" class="w-64 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:opacity-95 text-slate-950 font-black text-xs shadow-lg transition transform active:scale-95 mb-2.5 flex items-center justify-center gap-1.5">
+              <span>⚔️ 1v1 ONLINE (PLAY WITH FRIENDS)</span>
+            </button>
+
+            <div class="grid grid-cols-2 gap-2 w-64">
+              <button id="btn-open-shop" type="button" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-indigo-500/40 text-amber-300 font-extrabold text-xs transition shadow">
+                🚀 Spaceships
+              </button>
+              <button id="btn-open-missions" type="button" class="relative py-2.5 rounded-xl bg-indigo-950/90 hover:bg-indigo-900 border border-cyan-400/50 text-cyan-200 font-extrabold text-xs transition shadow">
+                🎯 Missions
+                <span id="missions-ready-badge" class="hidden absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-emerald-500 text-slate-950 font-black text-[10px] flex items-center justify-center shadow">!</span>
+              </button>
+              <button id="btn-open-wheel" type="button" class="py-2.5 rounded-xl bg-fuchsia-950/90 hover:bg-fuchsia-900 border border-pink-400/50 text-pink-200 font-extrabold text-xs transition shadow">
+                🎡 Lucky Wheel
+              </button>
+              <button id="btn-menu-free-coins" type="button" class="py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/60 text-amber-200 font-extrabold text-xs transition shadow">
+                🎬 +50 Coins
+              </button>
+            </div>
+          </div>
+
+          <div class="w-full text-xs text-slate-400 bg-slate-900/70 rounded-xl py-2 px-3 border border-slate-800/80 flex items-center justify-between">
+            <span>👤 Pilot: <strong id="menu-pilot-name" class="text-cyan-300 font-black">---</strong></span>
+            <button id="btn-change-username" type="button" class="text-[11px] text-indigo-300 hover:text-white underline font-bold">Edit</button>
+          </div>
+        </div>
+
+        <!-- FIRST-TIME USERNAME CREATION OVERLAY -->
+        <div id="overlay-username" class="hidden absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
+          <div class="w-full max-w-[300px] bg-slate-900 border border-cyan-500/50 rounded-3xl p-5 shadow-2xl flex flex-col gap-3.5">
+            <div class="text-4xl">👨‍🚀</div>
+            <h3 class="text-lg font-black text-white tracking-tight">CHOOSE YOUR USERNAME</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Create your pilot username to save your progress and challenge your friends in 1v1 Online Mode!
+            </p>
+            <input id="input-username" type="text" maxlength="14" placeholder="Ex: StarPilot99" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-indigo-500/60 text-white font-bold text-sm text-center focus:outline-none focus:border-cyan-400" />
+            <button id="btn-save-username" type="button" class="w-full py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:opacity-95 text-white font-black text-sm shadow-lg transition">
+              🚀 CONFIRM USERNAME
+            </button>
+          </div>
+        </div>
+
+        <!-- 1v1 ONLINE MULTIPLAYER LOBBY OVERLAY -->
+        <div id="overlay-multiplayer" class="hidden absolute inset-0 z-30 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-4 text-center">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 text-left">
+            <div>
+              <h3 class="text-base font-black text-white">⚔️ 1v1 ONLINE DUEL</h3>
+              <p class="text-[11px] text-slate-400">Free Mode survival: first to crash loses!</p>
+            </div>
+            <button id="btn-close-multiplayer" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700">
+              Close
+            </button>
+          </div>
+
+          <div class="my-auto flex flex-col gap-3 py-2">
+            <!-- Create Room / Invite Friend Box -->
+            <div class="bg-slate-900/90 border border-emerald-500/40 rounded-2xl p-3.5 flex flex-col gap-2">
+              <div class="text-xs font-black text-emerald-300 uppercase tracking-wider">1. Invite a Friend</div>
+              <p class="text-[11px] text-slate-300">Create a room and share the 5-letter code with your friend:</p>
+              <button id="btn-create-room" type="button" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow transition">
+                ➕ CREATE ROOM CODE
+              </button>
+
+              <div id="mp-created-room-box" class="hidden mt-1 p-2.5 rounded-xl bg-slate-950 border border-emerald-400/50 flex flex-col items-center gap-1.5">
+                <span class="text-[10px] text-slate-400 font-bold uppercase">Room Invite Code</span>
+                <div class="flex items-center gap-2">
+                  <span id="mp-room-code-display" class="text-2xl font-mono font-black tracking-widest text-amber-300">-----</span>
+                  <button id="btn-copy-room-code" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[11px] border border-slate-700">
+                    📋 Copy
+                  </button>
+                </div>
+                <span id="mp-room-status-text" class="text-[11px] text-cyan-300 font-semibold animate-pulse">Waiting for your friend to join...</span>
+              </div>
+            </div>
+
+            <div class="text-[11px] font-black text-slate-500 uppercase">— OR —</div>
+
+            <!-- Join Friend's Room Box -->
+            <div class="bg-slate-900/90 border border-indigo-500/40 rounded-2xl p-3.5 flex flex-col gap-2">
+              <div class="text-xs font-black text-cyan-300 uppercase tracking-wider">2. Join a Friend's Room</div>
+              <div class="flex items-center gap-2">
+                <input id="input-join-code" type="text" maxlength="6" placeholder="CODE" class="flex-1 px-3 py-2.5 rounded-xl bg-slate-950 border border-indigo-500/50 text-white font-mono font-black text-sm uppercase text-center tracking-widest focus:outline-none focus:border-cyan-400" />
+                <button id="btn-join-room" type="button" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow transition">
+                  JOIN ▶
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Pilot: <strong id="mp-pilot-label" class="text-white font-bold">---</strong></span>
+            <span id="mp-cloud-status" class="text-emerald-400 font-semibold">● Online Ready</span>
+          </div>
+        </div>
+
+        <!-- Live 1v1 Opponent Status Pill (During Online Match) -->
+        <div id="hud-mp-opponent" class="hidden absolute top-2 left-1/2 -translate-x-1/2 z-15 px-3.5 py-1 rounded-full bg-slate-900/95 border border-emerald-400/60 shadow-lg flex items-center gap-2 pointer-events-none">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span id="hud-mp-opponent-text" class="text-[11px] font-black text-emerald-200">VS Friend: ALIVE</span>
+        </div>
+
+        <!-- SETTINGS MODAL OVERLAY (Centered Popup) -->
+        <div id="overlay-settings" class="hidden absolute inset-0 z-30 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
+          <div class="w-full max-w-[290px] bg-slate-900 border border-indigo-500/40 rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <h3 class="text-base font-black text-white">⚙️ SETTINGS</h3>
+              <button id="btn-close-settings" type="button" class="w-7 h-7 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center">
+                ✕
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              <button id="btn-toggle-music" type="button" class="w-full py-3 px-4 rounded-2xl bg-indigo-600/80 hover:bg-indigo-500 text-white text-xs font-bold border border-indigo-400/40 transition flex items-center justify-between">
+                <span>🎵 Background Music</span>
+                <span id="settings-music-status" class="font-black text-cyan-300">ON</span>
+              </button>
+
+              <button id="btn-mute-audio" type="button" class="w-full py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center justify-between">
+                <span>🔊 Sound Effects (SFX)</span>
+                <span id="settings-sfx-status" class="font-black text-emerald-300">ON</span>
+              </button>
+            </div>
+
+            <button id="btn-apply-settings" type="button" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs transition shadow">
+              DONE
+            </button>
+          </div>
+        </div>
+
+        <!-- PAUSE OVERLAY -->
+        <div id="overlay-pause" class="hidden absolute inset-0 z-20 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+          <h3 class="text-2xl font-black text-white mb-2">GAME PAUSED</h3>
+          <p class="text-xs text-slate-400 mb-6">Your spaceship is ready to fly!</p>
+          <button id="btn-resume-game" type="button" class="w-56 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm mb-2.5 transition shadow-lg">
+            ▶ RESUME GAME
+          </button>
+          <button id="btn-pause-settings" type="button" class="w-56 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 mb-2.5 transition flex items-center justify-center gap-2">
+            ⚙️ Settings
+          </button>
+          <button id="btn-quit-to-menu" type="button" class="w-56 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition">
+            Main Menu
+          </button>
+        </div>
+
+        <!-- GAME OVER OVERLAY -->
+        <div id="overlay-gameover" class="hidden absolute inset-0 z-20 bg-slate-950/92 backdrop-blur-md flex flex-col items-center justify-between p-5 text-center">
+          <div class="w-full flex items-center justify-between text-xs text-slate-300 bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-1.5">
+            <span>🏆 Best: <strong id="go-high-score" class="text-amber-300 font-black">0</strong></span>
+            <span id="go-new-record-badge" class="hidden px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-black text-[10px] animate-bounce">🎉 NEW RECORD!</span>
+          </div>
+
+          <div class="my-auto w-full flex flex-col items-center">
+            <div id="go-icon-emoji" class="text-4xl mb-1">💥</div>
+            <h3 id="go-title-heading" class="text-2xl font-black text-rose-400 tracking-tight mb-1">SHIP DESTROYED!</h3>
+            <p id="go-subtitle-desc" class="text-xs text-slate-400 mb-3">A red laser barrier stopped your run!</p>
+
+            <div id="go-crowns-showcase" class="px-4 py-1.5 rounded-2xl bg-indigo-950/90 border border-amber-400/50 text-sm font-black text-amber-300 mb-2.5 tracking-wider shadow">
+              ☆☆☆
+            </div>
+            <div class="w-full grid grid-cols-2 gap-2 bg-slate-900/90 border border-slate-800 rounded-2xl p-3 mb-4">
+              <div>
+                <span class="text-[11px] text-slate-400 font-semibold block">Final Score</span>
+                <span id="go-score" class="text-2xl font-black text-white tabular-nums">0</span>
+              </div>
+              <div>
+                <span class="text-[11px] text-slate-400 font-semibold block">Coins Earned</span>
+                <span id="go-coins-earned" class="text-2xl font-black text-amber-400 tabular-nums">+0</span>
+              </div>
+            </div>
+
+            <button id="btn-ad-revive" type="button" class="btn-rewarded w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg mb-2.5 flex items-center justify-center gap-2 transition">
+              <span>🎬 CONTINUE + FREE SHIELD!</span>
+            </button>
+
+            <button id="btn-ad-triple" type="button" class="w-full py-3 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/60 text-emerald-200 font-black text-xs mb-3 flex items-center justify-center gap-2 transition">
+              <span>🎬 TRIPLE MY COINS (<span id="go-triple-amount">+0</span>)</span>
+            </button>
+
+            <div class="flex items-center gap-2 w-full">
+              <button id="btn-play-again" type="button" class="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm transition shadow">
+                🔄 Play Again
+              </button>
+              <button id="btn-go-missions" type="button" class="py-3 px-3 rounded-xl bg-cyan-950/90 hover:bg-cyan-900 text-cyan-200 font-extrabold text-xs border border-cyan-500/50 transition">
+                🎯 Missions
+              </button>
+              <button id="btn-go-menu" type="button" class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition">
+                🏠 Menu
+              </button>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400">
+            8 spaceships and upgrades available in the Hangar!
+          </div>
+        </div>
+
+        <!-- HANGAR / SHOP OVERLAY -->
+        <div id="overlay-shop" class="hidden absolute inset-0 z-20 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <div>
+              <h3 class="text-base font-black text-white">🚀 HANGAR &amp; UPGRADES</h3>
+              <p class="text-[11px] text-slate-400">Choose your spaceship and upgrade your gear</p>
+            </div>
+            <button id="btn-close-shop" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700">
+              Close
+            </button>
+          </div>
+
+          <div class="my-2 flex-1 overflow-y-auto space-y-2.5 pr-1">
+            <div class="text-xs font-extrabold text-cyan-300 uppercase tracking-wider">8 Spaceships</div>
+            <div id="shop-skins-list" class="grid grid-cols-2 gap-2"></div>
+
+            <div class="text-xs font-extrabold text-emerald-300 uppercase tracking-wider pt-2">Super Boosts &amp; Boss Cannons</div>
+            <div id="shop-upgrades-list" class="space-y-2"></div>
+          </div>
+
+          <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-300 font-semibold">My Coins: <strong id="shop-coins-balance" class="text-amber-300 text-sm font-black">0</strong></span>
+            <button id="btn-shop-watch-ad" type="button" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 font-extrabold text-xs">
+              🎬 +50 Free Coins
+            </button>
+          </div>
+        </div>
+
+        <!-- MISSIONS OVERLAY PANEL -->
+        <div id="overlay-missions" class="hidden absolute inset-0 z-20 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <div>
+              <h3 class="text-base font-black text-white">🎯 SPACE MISSIONS</h3>
+              <p class="text-[11px] text-slate-400">Complete these 3 goals to earn bonus coins</p>
+            </div>
+            <button id="btn-close-missions" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700">
+              Close
+            </button>
+          </div>
+
+          <div id="missions-list-container" class="my-3 flex-1 overflow-y-auto space-y-3 pr-1"></div>
+
+          <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-300 font-semibold">My Coins: <strong id="missions-coins-balance" class="text-amber-300 text-sm font-black">0</strong></span>
+            <span class="text-[11px] text-cyan-300 font-semibold">Progress auto-saved</span>
+          </div>
+        </div>
+
+        <!-- FORTUNE WHEEL OVERLAY PANEL -->
+        <div id="overlay-wheel" class="hidden absolute inset-0 z-20 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-4 text-center">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 text-left">
+            <div>
+              <h3 class="text-base font-black text-white">🎡 LUCKY WHEEL</h3>
+              <p class="text-[11px] text-slate-400">1 free spin + bonus spins via video!</p>
+            </div>
+            <button id="btn-close-wheel" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700">
+              Close
+            </button>
+          </div>
+
+          <div class="my-auto flex flex-col items-center">
+            <div class="text-amber-400 text-xl leading-none mb-1 drop-shadow">▼</div>
+            <div class="relative w-[220px] h-[220px] rounded-full p-1.5 bg-gradient-to-tr from-indigo-500 via-pink-500 to-amber-400 shadow-[0_0_30px_rgba(236,72,153,0.35)] mb-3">
+              <canvas id="wheel-canvas" width="208" height="208" class="w-full h-full rounded-full"></canvas>
+            </div>
+
+            <div id="wheel-result-label" class="text-xs font-extrabold text-cyan-300 min-h-[20px] mb-3">
+              Spin the wheel to win up to 200 coins!
+            </div>
+
+            <div class="w-full space-y-2">
+              <button id="btn-spin-free" type="button" class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:opacity-95 text-slate-950 font-black text-sm shadow-lg transition">
+                🎡 FREE SPIN!
+              </button>
+              <button id="btn-spin-ad" type="button" class="w-full py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/60 text-amber-200 font-black text-xs transition">
+                🎬 BONUS FREE SPIN (VIDEO)
+              </button>
+            </div>
+          </div>
+
+          <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-300 font-semibold">My Coins: <strong id="wheel-coins-balance" class="text-amber-300 text-sm font-black">0</strong></span>
+            <span id="wheel-free-status" class="text-[11px] text-emerald-400 font-bold">1 free spin available</span>
+          </div>
+        </div>
+
+        <!-- NORMAL IN-GAME VIDEO AD OVERLAY -->
+        <div id="overlay-ad-player" class="hidden absolute inset-0 z-30 bg-black flex flex-col justify-between p-4">
+          <div class="flex items-center justify-between bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2">
+            <span id="ad-badge-type" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-black text-[10px]">🎬 REWARDED VIDEO</span>
+            <span id="ad-countdown-pill" class="text-xs font-mono font-bold text-white bg-slate-800 px-2.5 py-0.5 rounded-lg">4s</span>
+          </div>
+
+          <div class="my-auto flex flex-col items-center text-center p-5 rounded-2xl bg-gradient-to-br from-indigo-950 via-slate-900 to-fuchsia-950 border border-indigo-500/40 shadow-2xl">
+            <div class="text-5xl mb-3 animate-bounce">
+              🎮🚀✨
+            </div>
+            <h4 id="ad-creative-title" class="text-lg font-black text-white mb-1">Super Galaxy Heroes!</h4>
+            <p id="ad-creative-desc" class="text-xs text-slate-300 mb-4 max-w-[230px]">
+              Watch this short video until the end to unlock your free reward!
+            </p>
+            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mb-2">
+              <div id="ad-progress-bar" class="bg-gradient-to-r from-cyan-400 via-amber-400 to-emerald-400 h-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+            <span id="ad-status-text" class="text-xs text-amber-300 font-bold">Loading reward...</span>
+          </div>
+
+          <div class="flex items-center justify-end">
+            <button id="btn-close-ad" type="button" disabled class="w-full py-3 rounded-xl bg-slate-800 text-slate-500 font-black text-xs transition cursor-not-allowed">
+              Wait 4s...
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast-msg" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2 rounded-xl bg-slate-900 border border-cyan-400/60 text-white text-xs font-bold shadow-2xl">
+    Notification
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    window.NeonCloud = {
+      db: null,
+      auth: null,
+      user: null,
+      appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id',
+      ready: false,
+      activeRoomUnsub: null,
+
+      async init() {
+        try {
+          if (typeof __firebase_config === 'undefined' || !__firebase_config) return;
+          const firebaseConfig = JSON.parse(__firebase_config);
+          const app = initializeApp(firebaseConfig);
+          this.db = getFirestore(app);
+          this.auth = getAuth(app);
+
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(this.auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(this.auth);
+          }
+          this.user = this.auth.currentUser;
+          this.ready = Boolean(this.user);
+          if (this.ready && typeof window.onNeonCloudReady === 'function') {
+            window.onNeonCloudReady();
+          }
+        } catch (err) {
+          console.warn('Cloud init fallback to local mode:', err);
+        }
+      },
+
+      async saveProfile(saveState) {
+        if (!this.ready || !this.user || !this.db) return;
+        try {
+          const ref = doc(this.db, 'artifacts', this.appId, 'users', this.user.uid, 'profile', 'main');
+          await setDoc(ref, {
+            username: saveState.username || '',
+            highScore: saveState.highScore || 0,
+            coins: saveState.coins || 60,
+            gamesPlayed: saveState.gamesPlayed || 0,
+            selectedSkin: saveState.selectedSkin || 'cyber',
+            unlockedSkins: JSON.stringify(saveState.unlockedSkins || ['cyber']),
+            magnetLevel: saveState.magnetLevel || 1,
+            scoreMultLevel: saveState.scoreMultLevel || 1,
+            laserLevel: saveState.laserLevel || 1,
+            freeSpinAvailable: Boolean(saveState.freeSpinAvailable),
+            bestCrowns: saveState.bestCrowns || 0,
+            missions: JSON.stringify(saveState.missions || []),
+            updatedAt: Date.now()
+          }, { merge: true });
+        } catch (e) {}
+      },
+
+      async loadProfile() {
+        if (!this.ready || !this.user || !this.db) return null;
+        try {
+          const ref = doc(this.db, 'artifacts', this.appId, 'users', this.user.uid, 'profile', 'main');
+          const snap = await getDoc(ref);
+          if (!snap.exists()) return null;
+          const d = snap.data();
+          return {
+            username: d.username || '',
+            highScore: d.highScore || 0,
+            coins: typeof d.coins === 'number' ? d.coins : 60,
+            gamesPlayed: d.gamesPlayed || 0,
+            selectedSkin: d.selectedSkin || 'cyber',
+            unlockedSkins: d.unlockedSkins ? JSON.parse(d.unlockedSkins) : ['cyber'],
+            magnetLevel: d.magnetLevel || 1,
+            scoreMultLevel: d.scoreMultLevel || 1,
+            laserLevel: d.laserLevel || 1,
+            freeSpinAvailable: typeof d.freeSpinAvailable === 'boolean' ? d.freeSpinAvailable : true,
+            bestCrowns: d.bestCrowns || 0,
+            missions: d.missions ? JSON.parse(d.missions) : null
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+
+      async createRoom(roomCode, hostUsername, hostSkin) {
+        if (!this.ready || !this.user || !this.db) throw new Error('Cloud not connected');
+        const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
+        const roomData = {
+          roomCode,
+          status: 'waiting',
+          hostUid: this.user.uid,
+          hostName: hostUsername,
+          hostSkin: hostSkin || 'cyber',
+          hostLane: 1,
+          hostScore: 0,
+          hostAlive: true,
+          guestUid: '',
+          guestName: '',
+          guestSkin: 'solar',
+          guestLane: 1,
+          guestScore: 0,
+          guestAlive: true,
+          winnerUid: '',
+          winnerName: '',
+          loserName: '',
+          createdAt: Date.now()
+        };
+        await setDoc(ref, roomData);
+        return roomData;
+      },
+
+      async joinRoom(roomCode, guestUsername, guestSkin) {
+        if (!this.ready || !this.user || !this.db) throw new Error('Cloud not connected');
+        const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) throw new Error('Room code not found!');
+        const data = snap.data();
+        if (data.status !== 'waiting' && data.guestUid !== this.user.uid && data.hostUid !== this.user.uid) {
+          throw new Error('This match has already started!');
+        }
+        await updateDoc(ref, {
+          guestUid: this.user.uid,
+          guestName: guestUsername,
+          guestSkin: guestSkin || 'solar',
+          guestLane: 1,
+          guestScore: 0,
+          guestAlive: true,
+          status: 'playing',
+          startedAt: Date.now()
+        });
+        return data;
+      },
+
+      listenRoom(roomCode, onUpdate) {
+        this.stopListeningRoom();
+        if (!this.ready || !this.user || !this.db) return;
+        const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
+        this.activeRoomUnsub = onSnapshot(
+          ref,
+          (snap) => {
+            if (snap.exists() && typeof onUpdate === 'function') {
+              onUpdate(snap.data());
+            }
+          },
+          (err) => {
+            console.warn('Room listener error:', err);
+          }
+        );
+      },
+
+      async syncPlayerState(roomCode, isHost, lane, score) {
+        if (!this.ready || !this.user || !this.db || !roomCode) return;
+        try {
+          const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
+          if (isHost) {
+            await updateDoc(ref, { hostLane: lane, hostScore: Math.floor(score) });
+          } else {
+            await updateDoc(ref, { guestLane: lane, guestScore: Math.floor(score) });
+          }
+        } catch (e) {}
+      },
+
+      async reportCrash(roomCode, isHost, myName, opponentName) {
+        if (!this.ready || !this.user || !this.db || !roomCode) return;
+        try {
+          const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
+          const payload = {
+            status: 'finished',
+            winnerName: opponentName || 'Opponent',
+            loserName: myName || 'Pilot'
+          };
+          if (isHost) payload.hostAlive = false;
+          else payload.guestAlive = false;
+          await updateDoc(ref, payload);
+        } catch (e) {}
+      },
+
+      stopListeningRoom() {
+        if (this.activeRoomUnsub) {
+          this.activeRoomUnsub();
+          this.activeRoomUnsub = null;
+        }
+      }
+    };
+
+    window.NeonCloud.init();
+  </script>
+
+  <script>
+    (function() {
+      const ADMOB_CONFIG = {
+        androidRewardedId: 'ca-app-pub-3940256099942544/5224354917',
+        androidInterstitialId: 'ca-app-pub-3940256099942544/1033173712',
+        isTesting: true
+      };
+
+      const STORAGE_KEY = 'neon_sky_rush_save_v1';
+      let saveState = {
+        username: '',
+        highScore: 0,
+        coins: 60,
+        gamesPlayed: 0,
+        selectedSkin: 'cyber',
+        unlockedSkins: ['cyber'],
+        magnetLevel: 1,
+        scoreMultLevel: 1,
+        laserLevel: 1,
+        freeSpinAvailable: true,
+        bestCrowns: 0,
+        missions: [
+          { id: 'laser_targets', title: 'Boss Assault', desc: 'Hit a Boss 25 times with lasers', progress: 0, target: 25, reward: 60, tier: 1, icon: '⚡' },
+          { id: 'defeat_boss', title: 'Boss Hunter', desc: 'Defeat 1 Space Boss', progress: 0, target: 1, reward: 120, tier: 1, icon: '👾' },
+          { id: 'collect_coins', title: 'Gold Collector', desc: 'Collect 50 coins in runs', progress: 0, target: 50, reward: 80, tier: 1, icon: '🪙' }
+        ]
+      };
+
+      function loadSave() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            saveState = Object.assign({}, saveState, parsed);
+            if (typeof saveState.username !== 'string') saveState.username = '';
+            if (!saveState.laserLevel) saveState.laserLevel = 1;
+            if (typeof saveState.freeSpinAvailable !== 'boolean') saveState.freeSpinAvailable = true;
+            if (!saveState.bestCrowns) saveState.bestCrowns = 0;
+            if (!Array.isArray(saveState.missions) || saveState.missions.length !== 3) {
+              saveState.missions = [
+                { id: 'laser_targets', title: 'Boss Assault', desc: 'Hit a Boss 25 times with lasers', progress: 0, target: 25, reward: 60, tier: 1, icon: '⚡' },
+                { id: 'defeat_boss', title: 'Boss Hunter', desc: 'Defeat 1 Space Boss', progress: 0, target: 1, reward: 120, tier: 1, icon: '👾' },
+                { id: 'collect_coins', title: 'Gold Collector', desc: 'Collect 50 coins in runs', progress: 0, target: 50, reward: 80, tier: 1, icon: '🪙' }
+              ];
+            } else {
+              saveState.missions.forEach(m => {
+                if (m.id === 'laser_targets') {
+                  m.title = 'Boss Assault';
+                  m.desc = 'Hit a Boss ' + m.target + ' times with lasers';
+                } else if (m.id === 'defeat_boss') {
+                  m.title = 'Boss Hunter';
+                  m.desc = 'Defeat ' + m.target + ' Space Boss' + (m.target > 1 ? 'es' : '');
+                } else if (m.id === 'collect_coins') {
+                  m.title = 'Gold Collector';
+                  m.desc = 'Collect ' + m.target + ' coins in runs';
+                }
+              });
+            }
+          }
+        } catch (e) {}
+      }
+
+      function writeSave() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(saveState));
+          if (window.NeonCloud && window.NeonCloud.ready) {
+            window.NeonCloud.saveProfile(saveState);
+          }
+        } catch (e) {}
+      }
+
+      loadSave();
+      writeSave();
+
+      window.onNeonCloudReady = async function() {
+        const cloudData = await window.NeonCloud.loadProfile();
+        if (cloudData) {
+          if (cloudData.username && !saveState.username) saveState.username = cloudData.username;
+          saveState.highScore = Math.max(saveState.highScore || 0, cloudData.highScore || 0);
+          saveState.coins = Math.max(saveState.coins || 0, cloudData.coins || 0);
+          saveState.gamesPlayed = Math.max(saveState.gamesPlayed || 0, cloudData.gamesPlayed || 0);
+          saveState.bestCrowns = Math.max(saveState.bestCrowns || 0, cloudData.bestCrowns || 0);
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(saveState));
+          } catch (e) {}
+          updateUIStats();
+          checkFirstTimeUsernamePrompt();
+        } else {
+          window.NeonCloud.saveProfile(saveState);
+        }
+      };
+
+      let audioCtx = null;
+      let soundMuted = false;
+      let musicEnabled = true;
+      let bgmTimerId = null;
+      let bgmStep = 0;
+
+      const MELODY_NOTES = [
+        440.00, 523.25, 659.25, 880.00, 783.99, 659.25, 523.25, 659.25,
+        392.00, 493.88, 587.33, 783.99, 659.25, 587.33, 493.88, 587.33,
+        349.23, 440.00, 523.25, 698.46, 659.25, 523.25, 440.00, 523.25,
+        329.63, 493.88, 659.25, 783.99, 880.00, 987.77, 1046.50, 0
+      ];
+      const BASS_NOTES = [
+        220.00, 0, 220.00, 164.81, 196.00, 0, 196.00, 146.83,
+        174.61, 0, 174.61, 130.81, 164.81, 0, 196.00, 246.94,
+        220.00, 0, 220.00, 164.81, 196.00, 0, 196.00, 146.83,
+        174.61, 0, 196.00, 0,      220.00, 164.81, 220.00, 0
+      ];
+
+      function ensureAudio() {
+        try {
+          if (!audioCtx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) audioCtx = new AC();
+          }
+          if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+        } catch (e) {
+          return null;
+        }
+        return audioCtx;
+      }
+
+      function playSynthNote(freq, type, startTime, duration, vol, slideTo = null) {
+        if (!audioCtx || freq <= 0) return;
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, startTime);
+          if (slideTo) {
+            osc.frequency.exponentialRampToValueAtTime(slideTo, startTime + duration);
+          }
+          gain.gain.setValueAtTime(0.001, startTime);
+          gain.gain.linearRampToValueAtTime(vol, startTime + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0008, startTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + duration + 0.01);
+        } catch (e) {}
+      }
+
+      function playDrumHit(startTime, duration, vol, highpassFreq = 3000) {
+        if (!audioCtx) return;
+        try {
+          const bufferSize = Math.floor(audioCtx.sampleRate * duration);
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+          }
+          const noise = audioCtx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'highpass';
+          filter.frequency.value = highpassFreq;
+          const gain = audioCtx.createGain();
+          gain.gain.value = vol;
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+          noise.start(startTime);
+        } catch (e) {}
+      }
+
+      function startBackgroundMusic() {
+        stopBackgroundMusic();
+        if (!musicEnabled) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+
+        bgmTimerId = setInterval(() => {
+          if (!musicEnabled || gameState !== 'PLAYING' || !audioCtx) return;
+          const now = audioCtx.currentTime;
+          const mNote = MELODY_NOTES[bgmStep % MELODY_NOTES.length];
+          const bNote = BASS_NOTES[bgmStep % BASS_NOTES.length];
+
+          if (mNote > 0) {
+            playSynthNote(mNote, 'triangle', now, 0.13, 0.05);
+            playSynthNote(mNote * 2, 'sine', now, 0.07, 0.018);
+          }
+          if (bNote > 0) {
+            playSynthNote(bNote, 'sawtooth', now, 0.14, 0.035);
+          }
+          if (bgmStep % 2 === 1) {
+            playDrumHit(now, 0.03, 0.025, 3800);
+          }
+          bgmStep = (bgmStep + 1) % MELODY_NOTES.length;
+        }, 150);
+      }
+
+      function stopBackgroundMusic() {
+        if (bgmTimerId) {
+          clearInterval(bgmTimerId);
+          bgmTimerId = null;
+        }
+      }
+
+      function sfxMove() {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        playSynthNote(280, 'triangle', now, 0.08, 0.13, 680);
+        playSynthNote(560, 'sine', now + 0.02, 0.06, 0.08, 920);
+      }
+
+      function sfxLaser() {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        playSynthNote(1200, 'sawtooth', now, 0.045, 0.045, 320);
+      }
+
+      function sfxLaserHit() {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        playDrumHit(now, 0.06, 0.09, 1000);
+        playSynthNote(440, 'triangle', now, 0.07, 0.08, 160);
+      }
+
+      function sfxBossAlert() {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        playSynthNote(220, 'sawtooth', now, 0.22, 0.14, 440);
+        playSynthNote(220, 'sawtooth', now + 0.26, 0.28, 0.14, 440);
+      }
+
+      function sfxCoin() {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const mult = 1 + Math.min(0.45, (combo - 1) * 0.06);
+        playSynthNote(987.77 * mult, 'sine', now, 0.07, 0.15);
+        playSynthNote(1318.51 * mult, 'sine', now + 0.055, 0.16, 0.16);
+        playSynthNote(1975.53 * mult, 'triangle', now + 0.08, 0.11, 0.06);
+      }
+
+      function sfxGate() {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+        notes.forEach((n, i) => {
+          playSynthNote(n, 'triangle', now + i * 0.04, 0.16, 0.12);
+          playSynthNote(n * 1.5, 'sine', now + i * 0.04, 0.12, 0.05);
+        });
+      }
+
+      function sfxShield() {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        playSynthNote(320, 'sine', now, 0.14, 0.15, 640);
+        playSynthNote(480, 'triangle', now + 0.09, 0.22, 0.14, 1120);
+      }
+
+      function sfxCrash() {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        playDrumHit(now, 0.28, 0.22, 400);
+        playSynthNote(300, 'sawtooth', now, 0.22, 0.16, 55);
+        playSynthNote(180, 'triangle', now + 0.1, 0.28, 0.16, 40);
+      }
+
+      function sfxCrown(isCrownPhase) {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const baseNotes = isCrownPhase
+          ? [587.33, 739.99, 880.00, 1174.66, 1479.98]
+          : [523.25, 659.25, 783.99, 1046.50];
+        baseNotes.forEach((n, i) => {
+          playSynthNote(n, 'triangle', now + i * 0.055, 0.22, 0.15);
+          playSynthNote(n * 2, 'sine', now + i * 0.055, 0.16, 0.07);
+        });
+      }
+
+      function sfxReward() {
+        if (soundMuted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+        const offsets = [0, 0.08, 0.16, 0.24, 0.35, 0.45];
+        const durs = [0.08, 0.08, 0.08, 0.11, 0.09, 0.30];
+        notes.forEach((n, i) => {
+          playSynthNote(n, 'triangle', now + offsets[i], durs[i], 0.15);
+          playSynthNote(n * 2, 'sine', now + offsets[i], durs[i], 0.06);
+        });
+      }
+
+      const SKINS = [
+        { id: 'cyber', name: 'Cyber Falcon', cost: 0, color: '#38bdf8', glow: '#0284c7' },
+        { id: 'solar', name: 'Golden Comet', cost: 80, color: '#fbbf24', glow: '#d97706' },
+        { id: 'phantom', name: 'Neon Phantom', cost: 160, color: '#e879f9', glow: '#a21caf' },
+        { id: 'emerald', name: 'Emerald Viper', cost: 250, color: '#34d399', glow: '#059669' },
+        { id: 'crimson', name: 'Crimson Fury', cost: 350, color: '#f43f5e', glow: '#e11d48' },
+        { id: 'plasma', name: 'Plasma Nova', cost: 500, color: '#a855f7', glow: '#7e22ce' },
+        { id: 'titan', name: 'Arctic Titan', cost: 700, color: '#2dd4bf', glow: '#0d9488' },
+        { id: 'omega', name: 'Omega Dragon', cost: 1000, color: '#f97316', glow: '#ea580c' }
+      ];
+
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
+      const wrapper = document.getElementById('canvas-wrapper');
+
+      const hudScore = document.getElementById('hud-score');
+      const hudCoins = document.getElementById('hud-coins');
+      const hudComboBadge = document.getElementById('hud-combo-badge');
+      const hudPowerupBar = document.getElementById('hud-powerup-bar');
+      const hudPowerupLabel = document.getElementById('hud-powerup-label');
+      const hudPowerupTimer = document.getElementById('hud-powerup-timer');
+
+      const hudBossBar = document.getElementById('hud-boss-bar');
+      const hudBossName = document.getElementById('hud-boss-name');
+      const hudBossHpText = document.getElementById('hud-boss-hp-text');
+      const hudBossHpFill = document.getElementById('hud-boss-hp-fill');
+
+      const overlayMenu = document.getElementById('overlay-menu');
+      const overlayUsername = document.getElementById('overlay-username');
+      const overlayMultiplayer = document.getElementById('overlay-multiplayer');
+      const overlaySettings = document.getElementById('overlay-settings');
+      const overlayPause = document.getElementById('overlay-pause');
+      const overlayGameover = document.getElementById('overlay-gameover');
+      const overlayShop = document.getElementById('overlay-shop');
+      const overlayMissions = document.getElementById('overlay-missions');
+      const overlayWheel = document.getElementById('overlay-wheel');
+      const overlayAdPlayer = document.getElementById('overlay-ad-player');
+      const hudMpOpponent = document.getElementById('hud-mp-opponent');
+      const hudMpOpponentText = document.getElementById('hud-mp-opponent-text');
+      const toastMsg = document.getElementById('toast-msg');
+
+      // --- 1v1 ONLINE MULTIPLAYER STATE ---
+      let isMultiplayerMatch = false;
+      let mpRoomCode = '';
+      let mpIsHost = false;
+      let mpOpponentName = 'Opponent';
+      let mpOpponentSkin = 'solar';
+      let mpOpponentLane = 1;
+      let mpOpponentX = 0;
+      let mpOpponentScore = 0;
+      let mpMatchEnded = false;
+      let mpSyncTimer = 0;
+
+      let toastTimeout = null;
+      function showToast(text) {
+        toastMsg.textContent = text;
+        toastMsg.classList.remove('hidden');
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toastMsg.classList.add('hidden');
+        }, 2400);
+      }
+
+      let animFrameId = null;
+      let adIntervalId = null;
+
+      let gameState = 'MENU';
+      let previousStateBeforeAd = 'MENU';
+
+      let laneCount = 3;
+      let currentLane = 1;
+      let playerX = 0;
+      let targetX = 0;
+      let score = 0;
+      let sessionCoins = 0;
+      let combo = 1;
+      let speed = 225;
+      let shieldRemaining = 0;
+      let magnetBoostRemaining = 0;
+      let turboBoostRemaining = 0;
+      let revivedThisRun = false;
+      let tripledThisRun = false;
+      let watchedRewardedThisRun = false;
+      let screenShake = 0;
+
+      let selectedGameMode = 'BOSS_10';
+      let lasers = [];
+      let autoLaserTimer = 0;
+      let nextBossScore = 1400;
+      let bossCooldownTimer = 38.0;
+      let bossLevel = 0;
+      let activeBoss = null;
+      let modeVictoryAchieved = false;
+
+      const MT_THRESHOLDS = [380, 820, 1300, 1900, 2600, 3400];
+      let runProgressPoints = 0;
+      let mtStage = 0;
+
+      let entities = [];
+      let particles = [];
+      let floatingTexts = [];
+      let stars = [];
+      let spawnTimer = 0;
+      let lastFrameTime = 0;
+
+      function getPlayerY() {
+        return canvas.height - 135;
+      }
+
+      function initStars(w, h) {
+        stars = [];
+        for (let i = 0; i < 45; i++) {
+          stars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            size: Math.random() * 2.2 + 0.8,
+            speedFactor: Math.random() * 0.45 + 0.15
+          });
+        }
+      }
+
+      function resizeCanvas() {
+        const rect = wrapper.getBoundingClientRect();
+        canvas.width = Math.max(280, Math.floor(rect.width || wrapper.clientWidth || 380));
+        canvas.height = Math.max(400, Math.floor(rect.height || wrapper.clientHeight || 580));
+        if (stars.length === 0) initStars(canvas.width, canvas.height);
+        targetX = getLaneCenterX(currentLane);
+        if (gameState !== 'PLAYING') {
+          playerX = targetX;
+        }
+        drawScene();
+      }
+
+      function getLaneCenterX(laneIndex) {
+        const w = canvas.width || 380;
+        const margin = w * 0.16;
+        const usable = w - margin * 2;
+        const laneWidth = usable / laneCount;
+        return margin + laneWidth * (laneIndex + 0.5);
+      }
+
+      function updateUIStats() {
+        hudCoins.textContent = saveState.coins;
+        document.getElementById('menu-high-score').textContent = saveState.highScore;
+        document.getElementById('menu-games-played').textContent = saveState.gamesPlayed;
+        const bestCrownsEl = document.getElementById('menu-best-crowns');
+        if (bestCrownsEl) bestCrownsEl.textContent = saveState.bestCrowns || 0;
+        const pilotEl = document.getElementById('menu-pilot-name');
+        if (pilotEl) pilotEl.textContent = saveState.username || 'Guest';
+        const mpPilotEl = document.getElementById('mp-pilot-label');
+        if (mpPilotEl) mpPilotEl.textContent = saveState.username || 'Guest';
+        document.getElementById('shop-coins-balance').textContent = saveState.coins;
+        const mBal = document.getElementById('missions-coins-balance');
+        if (mBal) mBal.textContent = saveState.coins;
+        const wBal = document.getElementById('wheel-coins-balance');
+        if (wBal) wBal.textContent = saveState.coins;
+
+        const readyCount = (saveState.missions || []).filter(m => m.progress >= m.target).length;
+        const badge = document.getElementById('missions-ready-badge');
+        if (badge) {
+          if (readyCount > 0) {
+            badge.textContent = readyCount;
+            badge.classList.remove('hidden');
+          } else {
+            badge.classList.add('hidden');
+          }
+        }
+      }
+
+      function checkFirstTimeUsernamePrompt() {
+        if (!saveState.username || saveState.username.trim().length < 2) {
+          overlayUsername.classList.remove('hidden');
+          const inp = document.getElementById('input-username');
+          if (inp) inp.focus();
+        } else {
+          overlayUsername.classList.add('hidden');
+        }
+      }
+
+      function advanceMission(missionId, amount = 1) {
+        if (!saveState.missions) return;
+        const m = saveState.missions.find(item => item.id === missionId);
+        if (!m) return;
+        const wasDone = m.progress >= m.target;
+        m.progress = Math.min(m.target, m.progress + amount);
+        if (!wasDone && m.progress >= m.target) {
+          sfxReward();
+          showToast('🎯 Mission complete: ' + m.title + ' (+' + m.reward + ' coins)!');
+        }
+        writeSave();
+        updateUIStats();
+      }
+
+      function updateCrownBarUI() {
+        const phaseLabel = document.getElementById('crown-phase-label');
+        const fillEl = document.getElementById('crown-progress-fill');
+        const ic1 = document.getElementById('mt-icon-1');
+        const ic2 = document.getElementById('mt-icon-2');
+        const ic3 = document.getElementById('mt-icon-3');
+
+        if (mtStage < 3) {
+          const cap = MT_THRESHOLDS[2];
+          const pct = Math.min(100, (runProgressPoints / cap) * 100);
+          fillEl.style.width = pct.toFixed(1) + '%';
+          fillEl.className = 'h-full bg-gradient-to-r from-cyan-400 via-amber-300 to-amber-500 transition-all duration-150';
+          const modeTag = isMultiplayerMatch ? '⚔️ 1v1 FREE • ' : (selectedGameMode === 'BOSS_10' ? ('BOSS ' + bossLevel + '/10 • ') : 'FREE MODE • ');
+          phaseLabel.textContent = modeTag + 'STARS (' + mtStage + '/3)';
+          phaseLabel.className = 'text-amber-300 tracking-wide';
+
+          ic1.textContent = '⭐';
+          ic2.textContent = '⭐';
+          ic3.textContent = '⭐';
+          ic1.className = mtStage >= 1 ? 'opacity-100 scale-110 transition-all duration-300 drop-shadow-[0_0_6px_#fbbf24]' : 'opacity-30 transition-all duration-300';
+          ic2.className = mtStage >= 2 ? 'opacity-100 scale-110 transition-all duration-300 drop-shadow-[0_0_6px_#fbbf24]' : 'opacity-30 transition-all duration-300';
+          ic3.className = mtStage >= 3 ? 'opacity-100 scale-110 transition-all duration-300 drop-shadow-[0_0_6px_#fbbf24]' : 'opacity-30 transition-all duration-300';
+        } else {
+          const base = MT_THRESHOLDS[2];
+          const cap = MT_THRESHOLDS[5];
+          const crownsEarned = mtStage - 3;
+          const pct = crownsEarned >= 3
+            ? 100
+            : Math.min(100, Math.max(0, ((runProgressPoints - base) / (cap - base)) * 100));
+          fillEl.style.width = pct.toFixed(1) + '%';
+          fillEl.className = 'h-full bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 transition-all duration-150';
+          const modeTag = isMultiplayerMatch ? '⚔️ 1v1 FREE • ' : (selectedGameMode === 'BOSS_10' ? ('BOSS ' + bossLevel + '/10 • ') : 'FREE MODE • ');
+          phaseLabel.textContent = modeTag + 'CROWNS (' + crownsEarned + '/3)';
+          phaseLabel.className = 'text-pink-300 tracking-wide';
+
+          ic1.textContent = '👑';
+          ic2.textContent = '👑';
+          ic3.textContent = '👑';
+          ic1.className = crownsEarned >= 1 ? 'opacity-100 scale-115 transition-all duration-300 drop-shadow-[0_0_8px_#f472b6]' : 'opacity-30 transition-all duration-300';
+          ic2.className = crownsEarned >= 2 ? 'opacity-100 scale-115 transition-all duration-300 drop-shadow-[0_0_8px_#f472b6]' : 'opacity-30 transition-all duration-300';
+          ic3.className = crownsEarned >= 3 ? 'opacity-100 scale-115 transition-all duration-300 drop-shadow-[0_0_8px_#f472b6]' : 'opacity-30 transition-all duration-300';
+        }
+      }
+
+      function startNewGame(startAsMultiplayer = false) {
+        ensureAudio();
+        isMultiplayerMatch = Boolean(startAsMultiplayer);
+        mpMatchEnded = false;
+        mpSyncTimer = 0;
+        if (isMultiplayerMatch) {
+          // 1v1 Online always runs in FREE_SKILL Mode (no Bosses, first to crash loses!)
+          selectedGameMode = 'FREE_SKILL';
+          mpOpponentX = getLaneCenterX(mpOpponentLane);
+          hudMpOpponent.classList.remove('hidden');
+          hudMpOpponentText.textContent = '⚔️ VS ' + mpOpponentName + ' • ALIVE';
+        } else {
+          if (window.NeonCloud) window.NeonCloud.stopListeningRoom();
+          hudMpOpponent.classList.add('hidden');
+        }
+
+        gameState = 'PLAYING';
+        currentLane = 1;
+        targetX = getLaneCenterX(1);
+        playerX = targetX;
+        score = 0;
+        sessionCoins = 0;
+        combo = 1;
+        speed = selectedGameMode === 'BOSS_10' ? 215 : 235;
+        modeVictoryAchieved = false;
+        shieldRemaining = 0;
+        magnetBoostRemaining = 0;
+        turboBoostRemaining = 0;
+        revivedThisRun = false;
+        tripledThisRun = false;
+        watchedRewardedThisRun = false;
+        entities = [];
+        lasers = [];
+        particles = [];
+        floatingTexts = [];
+        spawnTimer = 0.55;
+        autoLaserTimer = 0.08;
+        nextBossScore = 1200;
+        bossCooldownTimer = 36.0;
+        bossLevel = 0;
+        activeBoss = null;
+        runProgressPoints = 0;
+        mtStage = 0;
+        updateCrownBarUI();
+
+        overlayMenu.classList.add('hidden');
+        overlayMultiplayer.classList.add('hidden');
+        overlaySettings.classList.add('hidden');
+        overlayPause.classList.add('hidden');
+        overlayGameover.classList.add('hidden');
+        overlayShop.classList.add('hidden');
+        overlayMissions.classList.add('hidden');
+        overlayWheel.classList.add('hidden');
+        overlayAdPlayer.classList.add('hidden');
+
+        hudScore.textContent = '0';
+        hudComboBadge.classList.add('hidden');
+        hudPowerupBar.classList.add('hidden');
+        hudBossBar.classList.add('hidden');
+
+        startBackgroundMusic();
+        lastFrameTime = performance.now();
+        startLoop();
+      }
+
+      let lastLaneMoveTime = 0;
+      function moveLane(delta) {
+        if (gameState !== 'PLAYING') return;
+        const now = performance.now();
+        if (now - lastLaneMoveTime < 65) return;
+        lastLaneMoveTime = now;
+
+        const step = delta > 0 ? 1 : -1;
+        const next = Math.max(0, Math.min(laneCount - 1, currentLane + step));
+        if (next !== currentLane) {
+          currentLane = next;
+          targetX = getLaneCenterX(currentLane);
+          sfxMove();
+          if (isMultiplayerMatch && window.NeonCloud && mpRoomCode) {
+            window.NeonCloud.syncPlayerState(mpRoomCode, mpIsHost, currentLane, score);
+          }
+        }
+      }
+
+      function fireBossLaser() {
+        if (gameState !== 'PLAYING' || !activeBoss) return;
+        const playerY = getPlayerY();
+        const skin = SKINS.find(s => s.id === saveState.selectedSkin) || SKINS[0];
+
+        if (saveState.laserLevel >= 3) {
+          lasers.push({ x: playerX - 9, y: playerY - 22, color: skin.color, dmg: 1 });
+          lasers.push({ x: playerX + 9, y: playerY - 22, color: skin.color, dmg: 1 });
+        } else {
+          lasers.push({ x: playerX, y: playerY - 24, color: skin.color, dmg: 1 });
+        }
+        sfxLaser();
+      }
+
+      const BOSS_ARCHETYPES = [
+        { name: '👾 BOSS 1/10: RUBY SENTINEL', hullColor: '#e11d48', glowColor: '#f43f5e', coreColor: '#fde047', shotColor: '#ec4899', pattern: 'single' },
+        { name: '🛸 BOSS 2/10: NEBULA CRUISER', hullColor: '#9333ea', glowColor: '#c084fc', coreColor: '#38bdf8', shotColor: '#a855f7', pattern: 'double' },
+        { name: '⚡ BOSS 3/10: VOLT FALCON', hullColor: '#0284c7', glowColor: '#38bdf8', coreColor: '#fef08a', shotColor: '#38bdf8', pattern: 'single' },
+        { name: '🦂 BOSS 4/10: EMERALD SCORPION', hullColor: '#059669', glowColor: '#34d399', coreColor: '#ffffff', shotColor: '#10b981', pattern: 'burst' },
+        { name: '🔥 BOSS 5/10: SOLAR PHOENIX', hullColor: '#ea580c', glowColor: '#fb923c', coreColor: '#fde047', shotColor: '#f97316', pattern: 'double' },
+        { name: '❄️ BOSS 6/10: CRYO TITAN', hullColor: '#0d9488', glowColor: '#2dd4bf', coreColor: '#e0f2fe', shotColor: '#2dd4bf', pattern: 'burst' },
+        { name: '👁️ BOSS 7/10: VOID SPECTER', hullColor: '#c026d3', glowColor: '#e879f9', coreColor: '#fde047', shotColor: '#f472b6', pattern: 'double' },
+        { name: '🛡️ BOSS 8/10: AEGIS DREADNOUGHT', hullColor: '#4f46e5', glowColor: '#818cf8', coreColor: '#38bdf8', shotColor: '#818cf8', pattern: 'burst' },
+        { name: '🐉 BOSS 9/10: SUPERNOVA DRAGON', hullColor: '#d97706', glowColor: '#fbbf24', coreColor: '#ffffff', shotColor: '#facc15', pattern: 'double' },
+        { name: '👑 BOSS 10/10: OMEGA EMPEROR', hullColor: '#be123c', glowColor: '#fb7185', coreColor: '#fde047', shotColor: '#f43f5e', pattern: 'burst' }
+      ];
+
+      function spawnBoss() {
+        if (selectedGameMode !== 'BOSS_10' || bossLevel >= 10) return;
+        bossLevel += 1;
+        const arch = BOSS_ARCHETYPES[Math.min(bossLevel - 1, BOSS_ARCHETYPES.length - 1)];
+        const maxHp = 26 + bossLevel * 10;
+        activeBoss = {
+          x: getLaneCenterX(1),
+          y: -50,
+          targetY: 112, // Positioned lower so the Boss ship is clearly visible below the top HUD
+          lane: 1,
+          moveTimer: 1.25,
+          fireTimer: 1.35,
+          salvoCount: 0,
+          hp: maxHp,
+          maxHp: maxHp,
+          flashTimer: 0,
+          hullColor: arch.hullColor,
+          glowColor: arch.glowColor,
+          coreColor: arch.coreColor,
+          shotColor: arch.shotColor,
+          pattern: arch.pattern
+        };
+        hudBossName.textContent = arch.name;
+        hudBossHpText.textContent = '⚡ AUTO-LASER • 100%';
+        hudBossHpFill.style.width = '100%';
+        hudBossBar.classList.remove('hidden');
+        sfxBossAlert();
+        showToast('⚠️ ' + arch.name + '! Rapid Auto-Laser engaged!');
+      }
+
+      function activateCoinShield() {
+        if (gameState !== 'PLAYING') return;
+        if (shieldRemaining > 0) {
+          showToast('Shield already active!');
+          return;
+        }
+        if (saveState.coins < 25) {
+          showToast('Need 25 coins to activate Shield!');
+          return;
+        }
+        saveState.coins -= 25;
+        shieldRemaining = 6.0;
+        sfxShield();
+        writeSave();
+        updateUIStats();
+        showToast('🛡️ Shield activated (6s)!');
+      }
+
+      function spawnWave() {
+        const pattern = Math.random();
+        const y = -40;
+
+        if (activeBoss) {
+          const coinLane = Math.floor(Math.random() * 3);
+          entities.push({ type: 'coin', lane: coinLane, y: y, hit: false });
+          return;
+        }
+
+        const isEarlyGame = score < 220;
+
+        if (pattern < 0.45 || isEarlyGame) {
+          // 1 Red Laser Barrier + 3 Coins in another lane
+          const obsLane = Math.floor(Math.random() * 3);
+          entities.push({ type: 'obstacle', lane: obsLane, y: y, hit: false });
+          const coinLane = (obsLane + 1 + Math.floor(Math.random() * 2)) % 3;
+          for (let i = 0; i < 3; i++) {
+            entities.push({ type: 'coin', lane: coinLane, y: y - i * 44, hit: false });
+          }
+        } else if (pattern < 0.84) {
+          // 2 Red Laser Barriers blocking 2 lanes, leaving 1 safe passage with a coin
+          const safeLane = Math.floor(Math.random() * 3);
+          for (let l = 0; l < 3; l++) {
+            if (l !== safeLane) {
+              entities.push({ type: 'obstacle', lane: l, y: y, hit: false });
+            } else {
+              entities.push({ type: 'coin', lane: l, y: y, hit: false });
+            }
+          }
+        } else if (pattern < 0.96) {
+          // Combo +1 Gate + 1 Red Laser Barrier
+          const gateLane = Math.floor(Math.random() * 3);
+          entities.push({ type: 'gate', lane: gateLane, y: y, hit: false });
+          const obsLane = (gateLane + 1) % 3;
+          entities.push({ type: 'obstacle', lane: obsLane, y: y, hit: false });
+        } else if (pattern < 0.988) {
+          // RARE Magnet or Turbo Pickup (~2.8% chance) + 1 Red Laser Barrier
+          const bonusLane = Math.floor(Math.random() * 3);
+          const pickupType = Math.random() < 0.52 ? 'magnet' : 'turbo';
+          entities.push({ type: pickupType, lane: bonusLane, y: y, hit: false });
+          const obsLane = (bonusLane + 1) % 3;
+          entities.push({ type: 'obstacle', lane: obsLane, y: y, hit: false });
+        } else {
+          // RARE Shield Orb (~1.2% chance) + 2 Red Laser Barriers
+          const shieldLane = Math.floor(Math.random() * 3);
+          entities.push({ type: 'shield', lane: shieldLane, y: y, hit: false });
+          for (let l = 0; l < 3; l++) {
+            if (l !== shieldLane) {
+              entities.push({ type: 'obstacle', lane: l, y: y, hit: false });
+            }
+          }
+        }
+      }
+
+      function addBurst(x, y, color, count = 14) {
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd = Math.random() * 170 + 45;
+          particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            life: 0.45,
+            maxLife: 0.45,
+            color: color
+          });
+        }
+      }
+
+      function addFloatingText(x, y, text, color) {
+        floatingTexts.push({
+          x: x,
+          y: y,
+          text: text,
+          color: color || '#ffffff',
+          life: 0.7,
+          maxLife: 0.7
+        });
+      }
+
+      function triggerGameOver(mpResult = null) {
+        stopBackgroundMusic();
+        if (mpResult === 'WIN') {
+          sfxReward();
+        } else {
+          sfxCrash();
+          screenShake = 12;
+        }
+        gameState = 'GAMEOVER';
+        saveState.gamesPlayed += 1;
+        hudMpOpponent.classList.add('hidden');
+
+        if (isMultiplayerMatch && !mpMatchEnded && mpResult !== 'WIN') {
+          mpMatchEnded = true;
+          if (window.NeonCloud && mpRoomCode) {
+            window.NeonCloud.reportCrash(mpRoomCode, mpIsHost, saveState.username || 'Pilot', mpOpponentName);
+          }
+        }
+        if (window.NeonCloud) {
+          window.NeonCloud.stopListeningRoom();
+        }
+
+        const finalScore = Math.floor(score);
+        let isNewRecord = false;
+        if (finalScore > saveState.highScore) {
+          saveState.highScore = finalScore;
+          isNewRecord = true;
+        }
+        writeSave();
+        updateUIStats();
+
+        if (!isMultiplayerMatch && saveState.gamesPlayed % 3 === 0 && !watchedRewardedThisRun) {
+          playSimulatedAd('INTERSTITIAL', () => {
+            showGameOverModal(finalScore, isNewRecord, mpResult);
+          });
+        } else {
+          showGameOverModal(finalScore, isNewRecord, mpResult);
+        }
+      }
+
+      function showGameOverModal(finalScore, isNewRecord, mpResult = null) {
+        const iconEmoji = document.getElementById('go-icon-emoji');
+        const titleHeading = document.getElementById('go-title-heading');
+        const subtitleDesc = document.getElementById('go-subtitle-desc');
+
+        if (isMultiplayerMatch) {
+          if (mpResult === 'WIN') {
+            iconEmoji.textContent = '🏆';
+            titleHeading.textContent = 'VICTORY! YOU WON!';
+            titleHeading.className = 'text-2xl font-black text-emerald-400 tracking-tight mb-1';
+            subtitleDesc.textContent = mpOpponentName + ' crashed first! (+150 bonus coins)';
+          } else {
+            iconEmoji.textContent = '💥';
+            titleHeading.textContent = 'YOU LOST THE DUEL!';
+            titleHeading.className = 'text-2xl font-black text-rose-400 tracking-tight mb-1';
+            subtitleDesc.textContent = 'You crashed first! ' + mpOpponentName + ' wins the 1v1!';
+          }
+        } else {
+          iconEmoji.textContent = '💥';
+          titleHeading.textContent = 'SHIP DESTROYED!';
+          titleHeading.className = 'text-2xl font-black text-rose-400 tracking-tight mb-1';
+          subtitleDesc.textContent = 'A red laser barrier stopped your run!';
+        }
+
+        document.getElementById('go-score').textContent = finalScore;
+        const showcase = document.getElementById('go-crowns-showcase');
+        if (showcase) {
+          if (isMultiplayerMatch) {
+            showcase.textContent = mpResult === 'WIN'
+              ? ('⚔️ 1v1 WINNER VS ' + mpOpponentName.toUpperCase())
+              : ('⚔️ DEFEATED BY ' + mpOpponentName.toUpperCase());
+          } else if (mtStage >= 4) {
+            const c = Math.min(3, mtStage - 3);
+            showcase.textContent = '👑'.repeat(c) + '☆'.repeat(3 - c) + ' • ' + c + ' CROWN' + (c > 1 ? 'S' : '') + '!';
+          } else if (mtStage >= 1) {
+            showcase.textContent = '⭐'.repeat(mtStage) + '☆'.repeat(3 - mtStage) + ' • ' + mtStage + ' STAR' + (mtStage > 1 ? 'S' : '') + '!';
+          } else {
+            showcase.textContent = '☆☆☆ • KEEP FLYING FOR 1 ⭐';
+          }
+        }
+        document.getElementById('go-high-score').textContent = saveState.highScore;
+        document.getElementById('go-coins-earned').textContent = '+' + sessionCoins;
+        document.getElementById('go-triple-amount').textContent = '+' + (sessionCoins * 2) + ' bonus';
+
+        const recBadge = document.getElementById('go-new-record-badge');
+        if (isNewRecord) recBadge.classList.remove('hidden');
+        else recBadge.classList.add('hidden');
+
+        // No revive in 1v1 Multiplayer (first to die loses immediately!)
+        const btnRevive = document.getElementById('btn-ad-revive');
+        if (revivedThisRun || isMultiplayerMatch) btnRevive.classList.add('hidden');
+        else btnRevive.classList.remove('hidden');
+
+        const btnTriple = document.getElementById('btn-ad-triple');
+        if (tripledThisRun || sessionCoins === 0) btnTriple.classList.add('hidden');
+        else btnTriple.classList.remove('hidden');
+
+        overlayGameover.classList.remove('hidden');
+      }
+
+      function playSimulatedAd(adType, onComplete) {
+        stopBackgroundMusic();
+
+        const nativeAdMob = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
+        if (nativeAdMob) {
+          const isRewarded = adType === 'REWARDED';
+          const adId = isRewarded ? ADMOB_CONFIG.androidRewardedId : ADMOB_CONFIG.androidInterstitialId;
+          const method = isRewarded ? 'prepareRewardVideoAd' : 'prepareInterstitial';
+          const showMethod = isRewarded ? 'showRewardVideoAd' : 'showInterstitial';
+          nativeAdMob[method]({ adId: adId, isTesting: ADMOB_CONFIG.isTesting })
+            .then(() => nativeAdMob[showMethod]())
+            .then(() => {
+              if (isRewarded) watchedRewardedThisRun = true;
+              if (typeof onComplete === 'function') onComplete();
+            })
+            .catch(() => {
+              if (typeof onComplete === 'function') onComplete();
+            });
+          return;
+        }
+
+        previousStateBeforeAd = gameState;
+        gameState = 'AD';
+        overlayAdPlayer.classList.remove('hidden');
+
+        const badge = document.getElementById('ad-badge-type');
+        const countdownPill = document.getElementById('ad-countdown-pill');
+        const progressBar = document.getElementById('ad-progress-bar');
+        const statusText = document.getElementById('ad-status-text');
+        const btnCloseAd = document.getElementById('btn-close-ad');
+
+        const isRewarded = adType === 'REWARDED';
+        const totalSeconds = isRewarded ? 4 : 3;
+        let remaining = totalSeconds;
+
+        if (isRewarded) {
+          badge.textContent = '🎬 REWARDED VIDEO';
+          badge.className = 'px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-black text-[10px]';
+          statusText.textContent = 'Watch until the end to claim your bonus!';
+        } else {
+          badge.textContent = 'AD BREAK';
+          badge.className = 'px-2 py-0.5 rounded bg-indigo-400 text-slate-950 font-black text-[10px]';
+          statusText.textContent = 'Game resumes in a moment...';
+        }
+
+        btnCloseAd.disabled = true;
+        btnCloseAd.className = 'w-full py-3 rounded-xl bg-slate-800 text-slate-500 font-black text-xs transition cursor-not-allowed';
+        btnCloseAd.textContent = 'Wait ' + remaining + 's...';
+        countdownPill.textContent = remaining + 's';
+        progressBar.style.width = '0%';
+
+        if (adIntervalId) clearInterval(adIntervalId);
+        adIntervalId = setInterval(() => {
+          remaining -= 1;
+          const pct = Math.min(100, Math.round(((totalSeconds - remaining) / totalSeconds) * 100));
+          progressBar.style.width = pct + '%';
+
+          if (remaining > 0) {
+            countdownPill.textContent = remaining + 's';
+            btnCloseAd.textContent = 'Wait ' + remaining + 's...';
+          } else {
+            clearInterval(adIntervalId);
+            adIntervalId = null;
+            countdownPill.textContent = 'Ready!';
+            statusText.textContent = isRewarded ? '🎉 Reward unlocked!' : 'Ad finished!';
+            btnCloseAd.disabled = false;
+            btnCloseAd.className = 'w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition cursor-pointer shadow-lg';
+            btnCloseAd.textContent = isRewarded ? '🎁 CLAIM MY REWARD >>' : '▶ CONTINUE >>';
+            sfxReward();
+            if (isRewarded) watchedRewardedThisRun = true;
+          }
+        }, 1000);
+
+        btnCloseAd.onclick = () => {
+          if (btnCloseAd.disabled) return;
+          overlayAdPlayer.classList.add('hidden');
+          gameState = previousStateBeforeAd;
+          if (typeof onComplete === 'function') onComplete();
+        };
+      }
+
+      function updateGame(dt) {
+        const w = canvas.width;
+        const h = canvas.height;
+        const playerY = getPlayerY();
+
+        playerX += (targetX - playerX) * Math.min(1, dt * 16);
+        if (isMultiplayerMatch) {
+          const oppTargetX = getLaneCenterX(mpOpponentLane);
+          mpOpponentX += (oppTargetX - mpOpponentX) * Math.min(1, dt * 12);
+          mpSyncTimer += dt;
+          if (mpSyncTimer >= 0.65 && window.NeonCloud && mpRoomCode) {
+            mpSyncTimer = 0;
+            window.NeonCloud.syncPlayerState(mpRoomCode, mpIsHost, currentLane, score);
+          }
+        }
+
+        // Faster and progressively accelerating speed while keeping long intervals between Bosses
+        if (selectedGameMode === 'BOSS_10') {
+          speed = Math.min(440, speed + dt * 2.4);
+        } else {
+          speed = Math.min(520, speed + dt * 3.2);
+        }
+        const effectiveSpeed = turboBoostRemaining > 0 ? speed * 1.38 : speed;
+        const mult = (1 + (saveState.scoreMultLevel - 1) * 0.2) * (turboBoostRemaining > 0 ? 2 : 1);
+        score += dt * (effectiveSpeed * 0.08) * combo * mult;
+        hudScore.textContent = Math.floor(score);
+
+        if (Math.floor(score) > saveState.highScore) {
+          saveState.highScore = Math.floor(score);
+          writeSave();
+        }
+
+        runProgressPoints += dt * 11.5;
+        if (mtStage < MT_THRESHOLDS.length && runProgressPoints >= MT_THRESHOLDS[mtStage]) {
+          mtStage += 1;
+          const isCrown = mtStage > 3;
+          sfxCrown(isCrown);
+          speed = Math.min(520, speed + 12);
+          if (!isCrown) {
+            const starBonus = mtStage * 20;
+            saveState.coins += starBonus;
+            sessionCoins += starBonus;
+            addFloatingText(playerX, playerY - 26, '⭐'.repeat(mtStage) + ' +' + starBonus + ' COINS!', '#fde047');
+            showToast('⭐ ' + mtStage + ' Star' + (mtStage > 1 ? 's' : '') + ' reached! +' + starBonus + ' coins!');
+          } else {
+            const crownNum = mtStage - 3;
+            const crownBonus = crownNum * 60;
+            saveState.coins += crownBonus;
+            sessionCoins += crownBonus;
+            if (crownNum > (saveState.bestCrowns || 0)) {
+              saveState.bestCrowns = crownNum;
+            }
+            addFloatingText(playerX, playerY - 28, '👑'.repeat(crownNum) + ' CROWN ' + crownNum + '!', '#f472b6');
+            if (selectedGameMode === 'FREE_SKILL' && crownNum === 3 && !modeVictoryAchieved) {
+              modeVictoryAchieved = true;
+              saveState.coins += 500;
+              sessionCoins += 500;
+              sfxReward();
+              showToast('🏆 AMAZING! You beat FREE MODE (3 Crowns)! +500 bonus coins!');
+            } else {
+              showToast('👑 CROWN ' + crownNum + '/3 UNLOCKED! +' + crownBonus + ' coins!');
+            }
+          }
+          writeSave();
+          updateUIStats();
+        }
+        updateCrownBarUI();
+
+        if (selectedGameMode === 'BOSS_10' && !activeBoss && bossLevel < 10) {
+          if (bossCooldownTimer > 0) {
+            bossCooldownTimer = Math.max(0, bossCooldownTimer - dt);
+          }
+          if (bossCooldownTimer <= 0 && score >= nextBossScore) {
+            spawnBoss();
+          }
+        }
+
+        if (activeBoss) {
+          autoLaserTimer -= dt;
+          const fireInterval = Math.max(0.065, 0.12 - (saveState.laserLevel - 1) * 0.014);
+          if (autoLaserTimer <= 0) {
+            fireBossLaser();
+            autoLaserTimer = fireInterval;
+          }
+        } else if (lasers.length > 0) {
+          lasers = [];
+        }
+
+        if (shieldRemaining > 0) shieldRemaining = Math.max(0, shieldRemaining - dt);
+        if (magnetBoostRemaining > 0) magnetBoostRemaining = Math.max(0, magnetBoostRemaining - dt);
+        if (turboBoostRemaining > 0) turboBoostRemaining = Math.max(0, turboBoostRemaining - dt);
+
+        if (turboBoostRemaining > 0) {
+          hudPowerupBar.classList.remove('hidden');
+          hudPowerupLabel.textContent = '⚡ HYPER-TURBO x2 ACTIVE!';
+          hudPowerupTimer.textContent = turboBoostRemaining.toFixed(1) + 's';
+        } else if (shieldRemaining > 0) {
+          hudPowerupBar.classList.remove('hidden');
+          hudPowerupLabel.textContent = '🛡️ Invincible Shield Active';
+          hudPowerupTimer.textContent = shieldRemaining.toFixed(1) + 's';
+        } else if (magnetBoostRemaining > 0) {
+          hudPowerupBar.classList.remove('hidden');
+          hudPowerupLabel.textContent = '🧲 Super Magnet Active';
+          hudPowerupTimer.textContent = magnetBoostRemaining.toFixed(1) + 's';
+        } else {
+          hudPowerupBar.classList.add('hidden');
+        }
+
+        for (let i = 0; i < stars.length; i++) {
+          stars[i].y += effectiveSpeed * stars[i].speedFactor * dt;
+          if (stars[i].y > h) {
+            stars[i].y = 0;
+            stars[i].x = Math.random() * w;
+          }
+        }
+
+        if (activeBoss) {
+          if (activeBoss.y < activeBoss.targetY) {
+            activeBoss.y = Math.min(activeBoss.targetY, activeBoss.y + 150 * dt);
+          }
+          const bossTargetX = getLaneCenterX(activeBoss.lane);
+          activeBoss.x += (bossTargetX - activeBoss.x) * Math.min(1, dt * 8);
+
+          if (activeBoss.flashTimer > 0) {
+            activeBoss.flashTimer = Math.max(0, activeBoss.flashTimer - dt);
+          }
+
+          activeBoss.moveTimer -= dt;
+          if (activeBoss.moveTimer <= 0) {
+            activeBoss.lane = Math.floor(Math.random() * 3);
+            activeBoss.moveTimer = Math.max(0.55, 1.1 - bossLevel * 0.06);
+          }
+
+          activeBoss.fireTimer -= dt;
+          if (activeBoss.fireTimer <= 0) {
+            activeBoss.salvoCount = (activeBoss.salvoCount || 0) + 1;
+            if (activeBoss.pattern === 'double') {
+              const safeLane = (activeBoss.lane + 1 + Math.floor(Math.random() * 2)) % 3;
+              for (let l = 0; l < 3; l++) {
+                if (l !== safeLane) {
+                  entities.push({
+                    type: 'obstacle',
+                    lane: l,
+                    customX: getLaneCenterX(l),
+                    y: activeBoss.y + 30,
+                    hit: false,
+                    bossShot: true,
+                    shotColor: activeBoss.shotColor
+                  });
+                }
+              }
+              activeBoss.fireTimer = Math.max(0.75, 1.25 - bossLevel * 0.05);
+            } else if (activeBoss.pattern === 'burst') {
+              if (activeBoss.salvoCount % 2 === 0) {
+                [0, 2].forEach(l => {
+                  entities.push({
+                    type: 'obstacle',
+                    lane: l,
+                    customX: getLaneCenterX(l),
+                    y: activeBoss.y + 30,
+                    hit: false,
+                    bossShot: true,
+                    shotColor: activeBoss.shotColor
+                  });
+                });
+              } else {
+                entities.push({
+                  type: 'obstacle',
+                  lane: activeBoss.lane,
+                  customX: activeBoss.x,
+                  y: activeBoss.y + 30,
+                  hit: false,
+                  bossShot: true,
+                  shotColor: activeBoss.shotColor
+                });
+              }
+              activeBoss.fireTimer = Math.max(0.5, 0.9 - bossLevel * 0.04);
+            } else {
+              entities.push({
+                type: 'obstacle',
+                lane: activeBoss.lane,
+                customX: activeBoss.x,
+                y: activeBoss.y + 30,
+                hit: false,
+                bossShot: true,
+                shotColor: activeBoss.shotColor
+              });
+              activeBoss.fireTimer = Math.max(0.55, 1.05 - bossLevel * 0.06);
+            }
+          }
+        }
+
+        for (let i = lasers.length - 1; i >= 0; i--) {
+          const l = lasers[i];
+          if (!l) continue;
+          l.y -= 720 * dt;
+          let removed = false;
+
+          if (activeBoss && Math.abs(l.x - activeBoss.x) < 42 && Math.abs(l.y - activeBoss.y) < 34) {
+            activeBoss.hp -= l.dmg;
+            activeBoss.flashTimer = 0.09;
+            score += 10;
+            advanceMission('laser_targets', 1);
+            addBurst(l.x, l.y, '#38bdf8', 5);
+            sfxLaserHit();
+            removed = true;
+
+            const hpPct = Math.max(0, Math.round((activeBoss.hp / activeBoss.maxHp) * 100));
+            hudBossHpText.textContent = '⚡ AUTO-LASER • ' + hpPct + '%';
+            hudBossHpFill.style.width = hpPct + '%';
+
+            if (activeBoss.hp <= 0) {
+              addBurst(activeBoss.x, activeBoss.y, '#f43f5e', 34);
+              addBurst(activeBoss.x, activeBoss.y, '#fbbf24', 26);
+              score += 350;
+              sessionCoins += 35;
+              saveState.coins += 35;
+              speed = Math.min(480, speed + 16);
+              sfxReward();
+              advanceMission('defeat_boss', 1);
+              activeBoss = null;
+              lasers = [];
+              hudBossBar.classList.add('hidden');
+
+              if (bossLevel >= 10) {
+                modeVictoryAchieved = true;
+                saveState.coins += 1000;
+                sessionCoins += 1000;
+                addFloatingText(w / 2, h / 2, '👑 10/10 BOSSES DEFEATED! +1000 C.', '#fde047');
+                showToast('👑 TOTAL VICTORY! All 10 Bosses defeated! +1,000 coins!');
+              } else {
+                addFloatingText(w / 2, 130, 'BOSS ' + bossLevel + '/10 DEFEATED! +35 C.', '#fde047');
+                bossCooldownTimer = 42.0;
+                nextBossScore = Math.floor(score) + 2000 + bossLevel * 450;
+                showToast('🏆 Boss ' + bossLevel + '/10 destroyed! Next Boss in ~42s.');
+              }
+              updateCrownBarUI();
+              updateUIStats();
+              writeSave();
+              break;
+            }
+          }
+
+          if (removed || l.y < -20) {
+            lasers.splice(i, 1);
+          }
+        }
+
+        spawnTimer -= dt;
+        if (spawnTimer <= 0) {
+          spawnWave();
+          if (selectedGameMode === 'BOSS_10') {
+            spawnTimer = Math.max(0.54, 1.15 - (effectiveSpeed - 215) / 420);
+          } else {
+            spawnTimer = Math.max(0.46, 1.08 - (effectiveSpeed - 235) / 420);
+          }
+        }
+
+        const magnetRadius = magnetBoostRemaining > 0
+          ? w * 0.9
+          : 28 + (saveState.magnetLevel - 1) * 26;
+
+        for (let i = entities.length - 1; i >= 0; i--) {
+          const e = entities[i];
+          e.y += (e.bossShot ? effectiveSpeed * 1.15 : effectiveSpeed) * dt;
+          const ex = e.customX !== undefined ? e.customX : getLaneCenterX(e.lane);
+
+          if (e.type === 'coin' && !e.hit) {
+            const dx = playerX - ex;
+            const dy = playerY - e.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < magnetRadius + 40) {
+              e.customX = ex + dx * dt * (magnetBoostRemaining > 0 ? 11 : 8);
+            }
+          }
+
+          const curX = e.customX !== undefined ? e.customX : getLaneCenterX(e.lane);
+          const distX = Math.abs(curX - playerX);
+          const distY = Math.abs(e.y - playerY);
+
+          if (!e.hit && distX < 28 && distY < 28) {
+            if (e.type === 'coin') {
+              e.hit = true;
+              sessionCoins += 1;
+              saveState.coins += 1;
+              score += 15 * combo;
+              if (Math.floor(score) > saveState.highScore) {
+                saveState.highScore = Math.floor(score);
+              }
+              sfxCoin();
+              advanceMission('collect_coins', 1);
+              writeSave();
+              addBurst(curX, e.y, '#fbbf24', 9);
+              addFloatingText(curX, e.y - 10, '+1', '#fde047');
+              updateUIStats();
+            } else if (e.type === 'gate') {
+              e.hit = true;
+              combo = Math.min(8, combo + 1);
+              score += 50 * combo;
+              sfxGate();
+              hudComboBadge.textContent = 'COMBO x' + combo;
+              hudComboBadge.classList.remove('hidden');
+              addBurst(curX, e.y, '#38bdf8', 15);
+              addFloatingText(curX, e.y - 12, 'COMBO x' + combo + '!', '#38bdf8');
+            } else if (e.type === 'shield') {
+              e.hit = true;
+              shieldRemaining = 5.5;
+              sfxShield();
+              addBurst(curX, e.y, '#818cf8', 15);
+              addFloatingText(curX, e.y - 12, 'SHIELD!', '#a5b4fc');
+            } else if (e.type === 'magnet') {
+              e.hit = true;
+              magnetBoostRemaining = 7.0;
+              sfxShield();
+              addBurst(curX, e.y, '#34d399', 15);
+              addFloatingText(curX, e.y - 12, '🧲 MAGNET 7s!', '#6ee7b7');
+            } else if (e.type === 'turbo') {
+              e.hit = true;
+              turboBoostRemaining = 4.5;
+              sfxGate();
+              addBurst(curX, e.y, '#fbbf24', 18);
+              addFloatingText(curX, e.y - 12, '⚡ TURBO SPEED!', '#fde047');
+            } else if (e.type === 'obstacle') {
+              e.hit = true;
+              if (turboBoostRemaining > 0 || shieldRemaining > 0) {
+                if (shieldRemaining > 0 && turboBoostRemaining <= 0) {
+                  shieldRemaining = Math.max(0, shieldRemaining - 1.5);
+                }
+                score += 40;
+                sfxGate();
+                addBurst(curX, e.y, '#f43f5e', 18);
+                addFloatingText(curX, e.y - 12, 'SMASH +40', '#fda4af');
+              } else {
+                addBurst(playerX, playerY, '#f43f5e', 24);
+                triggerGameOver();
+                return;
+              }
+            }
+          }
+
+          if (e.y > h + 60 || e.hit) {
+            entities.splice(i, 1);
+          }
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.life -= dt;
+          if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+          const ft = floatingTexts[i];
+          ft.y -= 50 * dt;
+          ft.life -= dt;
+          if (ft.life <= 0) floatingTexts.splice(i, 1);
+        }
+
+        if (screenShake > 0) {
+          screenShake = Math.max(0, screenShake - dt * 30);
+        }
+      }
+
+      function drawScene() {
+        const w = canvas.width;
+        const h = canvas.height;
+        const playerY = getPlayerY();
+
+        ctx.save();
+        if (screenShake > 0) {
+          ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
+        }
+
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#090d16');
+        grad.addColorStop(0.5, '#111827');
+        grad.addColorStop(1, '#1e1b4b');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+        for (let i = 0; i < stars.length; i++) {
+          const s = stars[i];
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const margin = w * 0.16;
+        const usable = w - margin * 2;
+        const laneWidth = usable / laneCount;
+
+        ctx.strokeStyle = 'rgba(99, 102, 241, 0.25)';
+        ctx.lineWidth = 2;
+        for (let i = 0; i <= laneCount; i++) {
+          const lx = margin + i * laneWidth;
+          ctx.beginPath();
+          ctx.moveTo(lx, 0);
+          ctx.lineTo(lx, h);
+          ctx.stroke();
+        }
+
+        for (let i = 0; i < lasers.length; i++) {
+          const l = lasers[i];
+          ctx.save();
+          ctx.fillStyle = l.color || '#38bdf8';
+          ctx.shadowColor = l.color || '#38bdf8';
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.roundRect(l.x - 2.5, l.y - 10, 5, 18, 2.5);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        for (let i = 0; i < entities.length; i++) {
+          const e = entities[i];
+          const ex = e.customX !== undefined ? e.customX : getLaneCenterX(e.lane);
+
+          if (e.type === 'coin') {
+            ctx.save();
+            ctx.fillStyle = '#fbbf24';
+            ctx.shadowColor = '#f59e0b';
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            ctx.arc(ex, e.y, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fef3c7';
+            ctx.beginPath();
+            ctx.arc(ex - 3, e.y - 3, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          } else if (e.type === 'obstacle') {
+            ctx.save();
+            if (e.bossShot) {
+              ctx.fillStyle = e.shotColor || '#ec4899';
+              ctx.shadowColor = e.shotColor || '#db2777';
+              ctx.shadowBlur = 14;
+              ctx.beginPath();
+              ctx.arc(ex, e.y, 12, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#fbcfe8';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+            } else {
+              ctx.fillStyle = '#f43f5e';
+              ctx.shadowColor = '#e11d48';
+              ctx.shadowBlur = 14;
+              const bw = laneWidth * 0.68;
+              const bh = 22;
+              ctx.beginPath();
+              ctx.roundRect(ex - bw / 2, e.y - bh / 2, bw, bh, 6);
+              ctx.fill();
+              ctx.strokeStyle = '#fecdd3';
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            }
+            ctx.restore();
+          } else if (e.type === 'gate') {
+            ctx.save();
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+            ctx.strokeStyle = '#38bdf8';
+            ctx.shadowColor = '#0284c7';
+            ctx.shadowBlur = 12;
+            const gw = laneWidth * 0.72;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(ex - gw / 2, e.y - 14, gw, 28, 8);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#e0f2fe';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('COMBO +1', ex, e.y);
+            ctx.restore();
+          } else if (e.type === 'shield') {
+            ctx.save();
+            // Glowing Shield Orb + Vector Shield Emblem Logo
+            ctx.fillStyle = 'rgba(79, 70, 229, 0.35)';
+            ctx.shadowColor = '#6366f1';
+            ctx.shadowBlur = 16;
+            ctx.beginPath();
+            ctx.arc(ex, e.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#a5b4fc';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Inner Shield Crest Logo
+            ctx.fillStyle = '#38bdf8';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.8;
+            ctx.beginPath();
+            ctx.moveTo(ex, e.y - 9);
+            ctx.lineTo(ex + 8, e.y - 5);
+            ctx.lineTo(ex + 6, e.y + 3);
+            ctx.lineTo(ex, e.y + 9);
+            ctx.lineTo(ex - 6, e.y + 3);
+            ctx.lineTo(ex - 8, e.y - 5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+          } else if (e.type === 'magnet') {
+            ctx.save();
+            // Glowing Magnet Orb + U-Shaped Magnet Logo
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+            ctx.shadowColor = '#10b981';
+            ctx.shadowBlur = 16;
+            ctx.beginPath();
+            ctx.arc(ex, e.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#6ee7b7';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // U-Magnet Icon (Red arch + silver tips)
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 3.5;
+            ctx.lineCap = 'butt';
+            ctx.beginPath();
+            ctx.arc(ex, e.y + 1, 6, Math.PI, 0, false);
+            ctx.lineTo(ex + 6, e.y + 7);
+            ctx.moveTo(ex - 6, e.y + 1);
+            ctx.lineTo(ex - 6, e.y + 7);
+            ctx.stroke();
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(ex - 7.8, e.y + 5, 3.6, 3.2);
+            ctx.fillRect(ex + 4.2, e.y + 5, 3.6, 3.2);
+            ctx.restore();
+          } else if (e.type === 'turbo') {
+            ctx.save();
+            // Glowing Turbo Orb + Lightning Bolt Logo
+            ctx.fillStyle = 'rgba(234, 179, 8, 0.32)';
+            ctx.shadowColor = '#eab308';
+            ctx.shadowBlur = 18;
+            ctx.beginPath();
+            ctx.arc(ex, e.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#fef08a';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Lightning Bolt Logo
+            ctx.fillStyle = '#fde047';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(ex + 2, e.y - 9);
+            ctx.lineTo(ex - 6, e.y + 1);
+            ctx.lineTo(ex - 1, e.y + 1);
+            ctx.lineTo(ex - 3, e.y + 9);
+            ctx.lineTo(ex + 6, e.y - 1);
+            ctx.lineTo(ex + 1, e.y - 1);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+
+        if (activeBoss) {
+          ctx.save();
+          ctx.translate(activeBoss.x, activeBoss.y);
+          ctx.fillStyle = activeBoss.flashTimer > 0 ? '#ffffff' : (activeBoss.hullColor || '#e11d48');
+          ctx.shadowColor = activeBoss.glowColor || '#f43f5e';
+          ctx.shadowBlur = 22;
+
+          ctx.beginPath();
+          if (activeBoss.pattern === 'double') {
+            ctx.moveTo(0, 24);
+            ctx.lineTo(44, 4);
+            ctx.lineTo(34, -24);
+            ctx.lineTo(-34, -24);
+            ctx.lineTo(-44, 4);
+          } else if (activeBoss.pattern === 'burst') {
+            ctx.moveTo(0, 28);
+            ctx.lineTo(42, -6);
+            ctx.lineTo(18, -26);
+            ctx.lineTo(0, -14);
+            ctx.lineTo(-18, -26);
+            ctx.lineTo(-42, -6);
+          } else {
+            ctx.moveTo(0, 26);
+            ctx.lineTo(38, -10);
+            ctx.lineTo(24, -24);
+            ctx.lineTo(-24, -24);
+            ctx.lineTo(-38, -10);
+          }
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = activeBoss.coreColor || '#fde047';
+          ctx.beginPath();
+          ctx.arc(0, 0, 9.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Draw Opponent Ghost Spaceship in 1v1 Online Mode
+        if (isMultiplayerMatch && gameState === 'PLAYING') {
+          const oppSkin = SKINS.find(s => s.id === mpOpponentSkin) || SKINS[1];
+          ctx.save();
+          ctx.translate(mpOpponentX || getLaneCenterX(mpOpponentLane), playerY - 36);
+          ctx.globalAlpha = 0.58;
+
+          ctx.fillStyle = oppSkin.color;
+          ctx.shadowColor = oppSkin.glow;
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          ctx.moveTo(0, -18);
+          ctx.lineTo(16, 14);
+          ctx.lineTo(0, 9);
+          ctx.lineTo(-16, 14);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.globalAlpha = 0.92;
+          ctx.font = 'bold 10px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = '#a7f3d0';
+          ctx.fillText('⚔️ ' + mpOpponentName, 0, -24);
+          ctx.restore();
+        }
+
+        const skin = SKINS.find(s => s.id === saveState.selectedSkin) || SKINS[0];
+        ctx.save();
+        ctx.translate(playerX, playerY);
+
+        if (shieldRemaining > 0 || turboBoostRemaining > 0) {
+          ctx.beginPath();
+          ctx.arc(0, 0, 29, 0, Math.PI * 2);
+          ctx.fillStyle = turboBoostRemaining > 0 ? 'rgba(250, 204, 21, 0.28)' : 'rgba(99, 102, 241, 0.25)';
+          ctx.fill();
+          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = turboBoostRemaining > 0 ? '#fde047' : '#818cf8';
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = turboBoostRemaining > 0 ? '#38bdf8' : '#f97316';
+        ctx.beginPath();
+        ctx.moveTo(-7, 16);
+        ctx.lineTo(0, (turboBoostRemaining > 0 ? 34 : 26) + Math.random() * 9);
+        ctx.lineTo(7, 16);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = skin.color;
+        ctx.shadowColor = skin.glow;
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.moveTo(0, -20);
+        ctx.lineTo(18, 16);
+        ctx.lineTo(0, 10);
+        ctx.lineTo(-18, 16);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.moveTo(0, -8);
+        ctx.lineTo(6, 6);
+        ctx.lineTo(-6, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        for (let i = 0; i < floatingTexts.length; i++) {
+          const ft = floatingTexts[i];
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, ft.life / ft.maxLife);
+          ctx.font = 'bold 13px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = ft.color;
+          ctx.fillText(ft.text, ft.x, ft.y);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      function loop(now) {
+        const dt = Math.min(0.05, Math.max(0.001, (now - lastFrameTime) / 1000));
+        lastFrameTime = now;
+
+        if (gameState === 'PLAYING') {
+          updateGame(dt);
+        }
+        drawScene();
+
+        animFrameId = requestAnimationFrame(loop);
+      }
+
+      function startLoop() {
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+        lastFrameTime = performance.now();
+        animFrameId = requestAnimationFrame(loop);
+      }
+
+      function renderShop() {
+        const skinsContainer = document.getElementById('shop-skins-list');
+        skinsContainer.innerHTML = '';
+
+        SKINS.forEach(skin => {
+          const unlocked = saveState.unlockedSkins.includes(skin.id);
+          const selected = saveState.selectedSkin === skin.id;
+
+          const card = document.createElement('div');
+          card.className = 'p-2.5 rounded-xl border flex flex-col justify-between gap-2 ' +
+            (selected ? 'bg-indigo-950/80 border-indigo-400' : 'bg-slate-900 border-slate-800');
+
+          const top = document.createElement('div');
+          top.className = 'flex items-center gap-2';
+          const swatch = document.createElement('span');
+          swatch.className = 'w-4 h-4 rounded-full shrink-0';
+          swatch.style.background = skin.color;
+          const title = document.createElement('span');
+          title.className = 'text-xs font-bold text-white truncate';
+          title.textContent = skin.name;
+          top.appendChild(swatch);
+          top.appendChild(title);
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          if (selected) {
+            btn.className = 'w-full py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-[11px]';
+            btn.textContent = 'Equipped';
+          } else if (unlocked) {
+            btn.className = 'w-full py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[11px]';
+            btn.textContent = 'Select';
+          } else {
+            btn.className = 'w-full py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-300 font-bold text-[11px]';
+            btn.textContent = skin.cost + ' coins';
+          }
+
+          btn.addEventListener('click', () => {
+            if (unlocked) {
+              saveState.selectedSkin = skin.id;
+              sfxMove();
+              writeSave();
+              renderShop();
+              drawScene();
+              showToast(skin.name + ' equipped!');
+            } else if (saveState.coins >= skin.cost) {
+              saveState.coins -= skin.cost;
+              saveState.unlockedSkins.push(skin.id);
+              saveState.selectedSkin = skin.id;
+              sfxReward();
+              writeSave();
+              updateUIStats();
+              renderShop();
+              drawScene();
+              showToast('🎉 ' + skin.name + ' unlocked!');
+            } else {
+              showToast('Not enough coins! Tap +50 Free Coins.');
+            }
+          });
+
+          card.appendChild(top);
+          card.appendChild(btn);
+          skinsContainer.appendChild(card);
+        });
+
+        const upgContainer = document.getElementById('shop-upgrades-list');
+        upgContainer.innerHTML = '';
+
+        const upgrades = [
+          {
+            key: 'laserLevel',
+            title: 'Anti-Boss Laser Cannons',
+            desc: 'Ultra-fast fire rate vs Bosses (Twin Cannons at Lv. 3+)',
+            level: saveState.laserLevel,
+            cost: saveState.laserLevel * 65
+          },
+          {
+            key: 'magnetLevel',
+            title: 'Coin Magnet',
+            desc: 'Automatically pulls nearby coins toward your ship',
+            level: saveState.magnetLevel,
+            cost: saveState.magnetLevel * 60
+          },
+          {
+            key: 'scoreMultLevel',
+            title: 'Score Booster',
+            desc: 'Increases score earned by +20% per level',
+            level: saveState.scoreMultLevel,
+            cost: saveState.scoreMultLevel * 75
+          }
+        ];
+
+        upgrades.forEach(u => {
+          const row = document.createElement('div');
+          row.className = 'p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2';
+
+          const info = document.createElement('div');
+          info.innerHTML = `<div class="text-xs font-bold text-white">${u.title} (Lv. ${u.level})</div><div class="text-[10px] text-slate-400">${u.desc}</div>`;
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          if (u.level >= 5) {
+            btn.className = 'px-3 py-1.5 rounded-lg bg-slate-800 text-slate-500 font-bold text-[11px]';
+            btn.textContent = 'MAX';
+            btn.disabled = true;
+          } else {
+            btn.className = 'px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 text-emerald-300 font-bold text-[11px] shrink-0';
+            btn.textContent = u.cost + ' c.';
+            btn.addEventListener('click', () => {
+              if (saveState.coins >= u.cost) {
+                saveState.coins -= u.cost;
+                saveState[u.key] += 1;
+                sfxReward();
+                writeSave();
+                updateUIStats();
+                renderShop();
+                showToast(u.title + ' upgraded to Lv. ' + saveState[u.key] + '!');
+              } else {
+                showToast('Not enough coins!');
+              }
+            });
+          }
+
+          row.appendChild(info);
+          row.appendChild(btn);
+          upgContainer.appendChild(row);
+        });
+      }
+
+      function renderMissions() {
+        const container = document.getElementById('missions-list-container');
+        if (!container) return;
+        container.innerHTML = '';
+        updateUIStats();
+
+        saveState.missions.forEach((m) => {
+          const isDone = m.progress >= m.target;
+          const pct = Math.min(100, Math.round((m.progress / m.target) * 100));
+
+          const card = document.createElement('div');
+          card.className = 'p-3.5 rounded-2xl border flex flex-col gap-2.5 ' +
+            (isDone ? 'bg-emerald-950/50 border-emerald-400/70 shadow-lg' : 'bg-slate-900/90 border-slate-800');
+
+          const topRow = document.createElement('div');
+          topRow.className = 'flex items-center justify-between gap-2';
+
+          const leftInfo = document.createElement('div');
+          leftInfo.className = 'flex items-center gap-2.5';
+          leftInfo.innerHTML = `<div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-lg shrink-0">${m.icon}</div>` +
+            `<div><div class="text-xs font-black text-white">${m.title} <span class="text-[10px] text-cyan-300 font-bold">(Tier ${m.tier})</span></div>` +
+            `<div class="text-[11px] text-slate-300">${m.desc}</div></div>`;
+
+          const rewardBadge = document.createElement('div');
+          rewardBadge.className = 'px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-300 font-black text-xs shrink-0';
+          rewardBadge.textContent = '+' + m.reward + ' c.';
+
+          topRow.appendChild(leftInfo);
+          topRow.appendChild(rewardBadge);
+
+          const progRow = document.createElement('div');
+          progRow.className = 'space-y-1';
+          progRow.innerHTML = `<div class="flex items-center justify-between text-[11px] font-bold">` +
+            `<span class="text-slate-400">Progress</span>` +
+            `<span class="${isDone ? 'text-emerald-300' : 'text-cyan-300'} font-mono">${m.progress} / ${m.target}</span></div>` +
+            `<div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">` +
+            `<div class="h-full ${isDone ? 'bg-gradient-to-r from-emerald-400 to-lime-400' : 'bg-gradient-to-r from-cyan-400 to-indigo-500'} transition-all duration-300" style="width: ${pct}%;"></div></div>`;
+
+          card.appendChild(topRow);
+          card.appendChild(progRow);
+
+          if (isDone) {
+            const claimBtn = document.createElement('button');
+            claimBtn.type = 'button';
+            claimBtn.className = 'w-full py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-lime-500 hover:opacity-95 text-slate-950 font-black text-xs shadow transition';
+            claimBtn.textContent = '🎁 CLAIM +' + m.reward + ' COINS!';
+            claimBtn.addEventListener('click', () => {
+              saveState.coins += m.reward;
+              sfxReward();
+              const earned = m.reward;
+              m.tier += 1;
+              m.progress = 0;
+              if (m.id === 'laser_targets') {
+                m.target = 25 * m.tier;
+                m.desc = 'Hit a Boss ' + m.target + ' times with lasers';
+                m.reward = 60 + (m.tier - 1) * 35;
+              } else if (m.id === 'defeat_boss') {
+                m.target = m.tier;
+                m.desc = 'Defeat ' + m.target + ' Space Boss' + (m.target > 1 ? 'es' : '');
+                m.reward = 120 + (m.tier - 1) * 80;
+              } else if (m.id === 'collect_coins') {
+                m.target = 50 * m.tier;
+                m.desc = 'Collect ' + m.target + ' coins in runs';
+                m.reward = 80 + (m.tier - 1) * 45;
+              }
+              writeSave();
+              updateUIStats();
+              renderMissions();
+              showToast('🎉 +' + earned + ' coins claimed! Next tier unlocked!');
+            });
+            card.appendChild(claimBtn);
+          }
+
+          container.appendChild(card);
+        });
+      }
+
+      const WHEEL_PRIZES = [
+        { label: '+30 Coins', coins: 30, color: '#3b82f6' },
+        { label: '+75 Coins', coins: 75, color: '#8b5cf6' },
+        { label: '+100 Coins', coins: 100, color: '#06b6d4' },
+        { label: '+50 Coins', coins: 50, color: '#10b981' },
+        { label: 'JACKPOT +200', coins: 200, color: '#f59e0b' },
+        { label: '+40 Coins', coins: 40, color: '#ec4899' }
+      ];
+
+      let wheelAngle = 0;
+      let wheelSpinning = false;
+      const wheelCanvas = document.getElementById('wheel-canvas');
+      const wheelCtx = wheelCanvas.getContext('2d');
+
+      function drawFortuneWheel() {
+        const cw = wheelCanvas.width;
+        const ch = wheelCanvas.height;
+        const cx = cw / 2;
+        const cy = ch / 2;
+        const radius = cx - 4;
+        const arc = (Math.PI * 2) / WHEEL_PRIZES.length;
+
+        wheelCtx.clearRect(0, 0, cw, ch);
+
+        for (let i = 0; i < WHEEL_PRIZES.length; i++) {
+          const startAng = wheelAngle + i * arc;
+          const endAng = startAng + arc;
+          wheelCtx.beginPath();
+          wheelCtx.moveTo(cx, cy);
+          wheelCtx.arc(cx, cy, radius, startAng, endAng);
+          wheelCtx.closePath();
+          wheelCtx.fillStyle = WHEEL_PRIZES[i].color;
+          wheelCtx.fill();
+          wheelCtx.lineWidth = 2;
+          wheelCtx.strokeStyle = '#0f172a';
+          wheelCtx.stroke();
+
+          wheelCtx.save();
+          wheelCtx.translate(cx, cy);
+          wheelCtx.rotate(startAng + arc / 2);
+          wheelCtx.textAlign = 'right';
+          wheelCtx.textBaseline = 'middle';
+          wheelCtx.fillStyle = '#ffffff';
+          wheelCtx.font = 'bold 11px Inter, sans-serif';
+          wheelCtx.fillText(WHEEL_PRIZES[i].label, radius - 10, 0);
+          wheelCtx.restore();
+        }
+
+        wheelCtx.beginPath();
+        wheelCtx.arc(cx, cy, 18, 0, Math.PI * 2);
+        wheelCtx.fillStyle = '#0f172a';
+        wheelCtx.fill();
+        wheelCtx.lineWidth = 3;
+        wheelCtx.strokeStyle = '#fbbf24';
+        wheelCtx.stroke();
+      }
+
+      function updateWheelButtons() {
+        updateUIStats();
+        const btnFree = document.getElementById('btn-spin-free');
+        const statusEl = document.getElementById('wheel-free-status');
+        if (saveState.freeSpinAvailable) {
+          btnFree.disabled = false;
+          btnFree.className = 'w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:opacity-95 text-slate-950 font-black text-sm shadow-lg transition cursor-pointer';
+          btnFree.textContent = '🎡 FREE SPIN!';
+          statusEl.textContent = '1 free spin available';
+          statusEl.className = 'text-[11px] text-emerald-400 font-bold';
+        } else {
+          btnFree.disabled = true;
+          btnFree.className = 'w-full py-3 rounded-2xl bg-slate-800 text-slate-500 font-black text-sm cursor-not-allowed';
+          btnFree.textContent = '✓ Free spin used';
+          statusEl.textContent = 'Watch a short video for a bonus spin!';
+          statusEl.className = 'text-[11px] text-amber-300 font-bold';
+        }
+      }
+
+      function triggerWheelSpin() {
+        if (wheelSpinning) return;
+        wheelSpinning = true;
+        const resultLabel = document.getElementById('wheel-result-label');
+        resultLabel.textContent = 'Spinning... Good luck!';
+
+        const startAngle = wheelAngle;
+        const extraSpins = (Math.PI * 2) * (5 + Math.random() * 3);
+        const duration = 3000;
+        const startTime = performance.now();
+        let lastTickSlice = -1;
+        const arc = (Math.PI * 2) / WHEEL_PRIZES.length;
+
+        function animateWheel(now) {
+          const elapsed = now - startTime;
+          const t = Math.min(1, elapsed / duration);
+          const easeOut = 1 - Math.pow(1 - t, 3);
+          wheelAngle = startAngle + extraSpins * easeOut;
+          drawFortuneWheel();
+
+          const currentSlice = Math.floor((wheelAngle % (Math.PI * 2)) / arc);
+          if (currentSlice !== lastTickSlice) {
+            lastTickSlice = currentSlice;
+            sfxMove();
+          }
+
+          if (t < 1) {
+            requestAnimationFrame(animateWheel);
+          } else {
+            wheelSpinning = false;
+            const pointerAngle = (Math.PI * 1.5 - (wheelAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+            const winIndex = Math.floor(pointerAngle / arc) % WHEEL_PRIZES.length;
+            const prize = WHEEL_PRIZES[winIndex];
+
+            saveState.coins += prize.coins;
+            resultLabel.textContent = '🎉 WON: ' + prize.label + '!';
+            showToast('🎡 Lucky Wheel: ' + prize.label + ' added!');
+            sfxReward();
+            writeSave();
+            updateWheelButtons();
+          }
+        }
+        requestAnimationFrame(animateWheel);
+      }
+
+      const btnModeBoss = document.getElementById('btn-mode-boss');
+      const btnModeFree = document.getElementById('btn-mode-free');
+      const modeDescBanner = document.getElementById('mode-desc-banner');
+
+      function selectMode(mode) {
+        selectedGameMode = mode;
+        sfxMove();
+        if (mode === 'BOSS_10') {
+          btnModeBoss.className = 'py-2 px-2 rounded-xl bg-indigo-600 text-white font-black text-[11px] transition shadow';
+          btnModeFree.className = 'py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] transition';
+          modeDescBanner.textContent = '10 Bosses Mode: steady pace that speeds up over time with 10 unique Bosses!';
+          modeDescBanner.className = 'w-64 text-[11px] text-cyan-300 font-semibold mb-3 bg-indigo-950/60 border border-indigo-500/30 rounded-xl py-1.5 px-2.5';
+        } else {
+          btnModeFree.className = 'py-2 px-2 rounded-xl bg-rose-600 text-white font-black text-[11px] transition shadow';
+          btnModeBoss.className = 'py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] transition';
+          modeDescBanner.textContent = 'Free Mode (No Bosses): speeds up progressively. Reach 3 Crowns to beat it!';
+          modeDescBanner.className = 'w-64 text-[11px] text-amber-300 font-semibold mb-3 bg-rose-950/60 border border-rose-500/30 rounded-xl py-1.5 px-2.5';
+        }
+      }
+
+      btnModeBoss.addEventListener('click', () => selectMode('BOSS_10'));
+      btnModeFree.addEventListener('click', () => selectMode('FREE_SKILL'));
+
+      document.getElementById('btn-start-game').addEventListener('click', () => startNewGame(false));
+      document.getElementById('btn-play-again').addEventListener('click', () => startNewGame(false));
+
+      // --- USERNAME CREATION & EDIT HANDLERS ---
+      function saveUsernameFromModal() {
+        const inp = document.getElementById('input-username');
+        const cleaned = (inp ? inp.value : '').trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 14);
+        if (cleaned.length < 2) {
+          showToast('⚠️ Username must be at least 2 characters!');
+          return;
+        }
+        saveState.username = cleaned;
+        sfxReward();
+        writeSave();
+        updateUIStats();
+        overlayUsername.classList.add('hidden');
+        showToast('👨‍🚀 Welcome, Pilot ' + cleaned + '!');
+      }
+
+      document.getElementById('btn-save-username').addEventListener('click', saveUsernameFromModal);
+      document.getElementById('input-username').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') saveUsernameFromModal();
+      });
+      document.getElementById('btn-change-username').addEventListener('click', () => {
+        const inp = document.getElementById('input-username');
+        if (inp) inp.value = saveState.username || '';
+        overlayUsername.classList.remove('hidden');
+        if (inp) inp.focus();
+      });
+
+      // --- 1v1 ONLINE MULTIPLAYER LOBBY HANDLERS ---
+      function generateRoomCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 5; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      }
+
+      function attachRoomListener(code) {
+        if (!window.NeonCloud) return;
+        window.NeonCloud.listenRoom(code, (room) => {
+          if (!room) return;
+
+          if (mpIsHost) {
+            mpOpponentName = room.guestName || 'Friend';
+            mpOpponentSkin = room.guestSkin || 'solar';
+            mpOpponentLane = typeof room.guestLane === 'number' ? room.guestLane : 1;
+            mpOpponentScore = room.guestScore || 0;
+          } else {
+            mpOpponentName = room.hostName || 'Host';
+            mpOpponentSkin = room.hostSkin || 'cyber';
+            mpOpponentLane = typeof room.hostLane === 'number' ? room.hostLane : 1;
+            mpOpponentScore = room.hostScore || 0;
+          }
+
+          if (hudMpOpponentText && isMultiplayerMatch) {
+            hudMpOpponentText.textContent = '⚔️ VS ' + mpOpponentName + ' • ' + mpOpponentScore + ' pts';
+          }
+
+          // Start the Free Mode 1v1 duel as soon as both players are in the room
+          if (room.status === 'playing' && gameState !== 'PLAYING' && !mpMatchEnded) {
+            sfxReward();
+            showToast('⚔️ ' + mpOpponentName + ' connected! Free Mode 1v1 started!');
+            startNewGame(true);
+            return;
+          }
+
+          // First player to crash loses -> survivor wins immediately!
+          if (room.status === 'finished' && gameState === 'PLAYING' && !mpMatchEnded) {
+            const opponentCrashed = mpIsHost ? (room.guestAlive === false) : (room.hostAlive === false);
+            if (opponentCrashed) {
+              mpMatchEnded = true;
+              saveState.coins += 150;
+              sessionCoins += 150;
+              writeSave();
+              showToast('🏆 ' + mpOpponentName + ' crashed! YOU WIN +150 coins!');
+              triggerGameOver('WIN');
+            }
+          }
+        });
+      }
+
+      document.getElementById('btn-open-multiplayer').addEventListener('click', () => {
+        if (!saveState.username || saveState.username.length < 2) {
+          checkFirstTimeUsernamePrompt();
+          return;
+        }
+        sfxMove();
+        updateUIStats();
+        document.getElementById('mp-created-room-box').classList.add('hidden');
+        overlayMenu.classList.add('hidden');
+        overlayMultiplayer.classList.remove('hidden');
+        gameState = 'MULTIPLAYER';
+      });
+
+      document.getElementById('btn-close-multiplayer').addEventListener('click', () => {
+        sfxMove();
+        if (window.NeonCloud) window.NeonCloud.stopListeningRoom();
+        overlayMultiplayer.classList.add('hidden');
+        overlayMenu.classList.remove('hidden');
+        gameState = 'MENU';
+      });
+
+      document.getElementById('btn-create-room').addEventListener('click', async () => {
+        if (!window.NeonCloud || !window.NeonCloud.ready) {
+          showToast('Connecting to online server... try again in a second!');
+          return;
+        }
+        const code = generateRoomCode();
+        try {
+          mpIsHost = true;
+          mpRoomCode = code;
+          await window.NeonCloud.createRoom(code, saveState.username || 'Pilot', saveState.selectedSkin);
+          document.getElementById('mp-room-code-display').textContent = code;
+          document.getElementById('mp-created-room-box').classList.remove('hidden');
+          attachRoomListener(code);
+          sfxReward();
+          showToast('Room ' + code + ' created! Share the code with your friend.');
+        } catch (err) {
+          showToast('Could not create room: ' + err.message);
+        }
+      });
+
+      document.getElementById('btn-copy-room-code').addEventListener('click', () => {
+        if (!mpRoomCode) return;
+        const tempInput = document.createElement('textarea');
+        tempInput.value = mpRoomCode;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        try {
+          document.execCommand('copy');
+          showToast('📋 Code ' + mpRoomCode + ' copied! Send it to your friend.');
+        } catch (e) {}
+        document.body.removeChild(tempInput);
+      });
+
+      document.getElementById('btn-join-room').addEventListener('click', async () => {
+        if (!window.NeonCloud || !window.NeonCloud.ready) {
+          showToast('Connecting to online server... try again in a second!');
+          return;
+        }
+        const inp = document.getElementById('input-join-code');
+        const code = (inp ? inp.value : '').trim().toUpperCase();
+        if (code.length < 4) {
+          showToast('Enter a valid 5-letter room code!');
+          return;
+        }
+        try {
+          mpIsHost = false;
+          mpRoomCode = code;
+          const roomData = await window.NeonCloud.joinRoom(code, saveState.username || 'Pilot', saveState.selectedSkin);
+          mpOpponentName = roomData.hostName || 'Host';
+          mpOpponentSkin = roomData.hostSkin || 'cyber';
+          attachRoomListener(code);
+          sfxReward();
+          showToast('⚔️ Joined ' + mpOpponentName + '! Starting 1v1 Free Mode!');
+          startNewGame(true);
+        } catch (err) {
+          showToast('❌ ' + (err.message || 'Room not found'));
+        }
+      });
+
+      document.getElementById('btn-pause-game').addEventListener('click', () => {
+        if (gameState === 'PLAYING') {
+          gameState = 'PAUSED';
+          stopBackgroundMusic();
+          overlayPause.classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('btn-resume-game').addEventListener('click', () => {
+        if (gameState === 'PAUSED') {
+          gameState = 'PLAYING';
+          overlayPause.classList.add('hidden');
+          startBackgroundMusic();
+          startLoop();
+        }
+      });
+
+      document.getElementById('btn-quit-to-menu').addEventListener('click', () => {
+        gameState = 'MENU';
+        stopBackgroundMusic();
+        overlayPause.classList.add('hidden');
+        overlayMenu.classList.remove('hidden');
+        drawScene();
+      });
+
+      document.getElementById('btn-go-menu').addEventListener('click', () => {
+        gameState = 'MENU';
+        stopBackgroundMusic();
+        overlayGameover.classList.add('hidden');
+        overlayMenu.classList.remove('hidden');
+        drawScene();
+      });
+
+      // Settings Modal Logic (from Home Menu gear icon or Pause menu)
+      function openSettingsModal() {
+        sfxMove();
+        overlaySettings.classList.remove('hidden');
+      }
+
+      function closeSettingsModal() {
+        sfxMove();
+        overlaySettings.classList.add('hidden');
+      }
+
+      document.getElementById('btn-menu-settings').addEventListener('click', openSettingsModal);
+      document.getElementById('btn-pause-settings').addEventListener('click', openSettingsModal);
+      document.getElementById('btn-close-settings').addEventListener('click', closeSettingsModal);
+      document.getElementById('btn-apply-settings').addEventListener('click', closeSettingsModal);
+
+      let returnToGameOverFromMissions = false;
+      document.getElementById('btn-open-missions').addEventListener('click', () => {
+        sfxMove();
+        returnToGameOverFromMissions = false;
+        renderMissions();
+        overlayMenu.classList.add('hidden');
+        overlayMissions.classList.remove('hidden');
+        gameState = 'MISSIONS';
+      });
+
+      document.getElementById('btn-go-missions').addEventListener('click', () => {
+        sfxMove();
+        returnToGameOverFromMissions = true;
+        renderMissions();
+        overlayGameover.classList.add('hidden');
+        overlayMissions.classList.remove('hidden');
+        gameState = 'MISSIONS';
+      });
+
+      document.getElementById('btn-close-missions').addEventListener('click', () => {
+        sfxMove();
+        overlayMissions.classList.add('hidden');
+        if (returnToGameOverFromMissions) {
+          overlayGameover.classList.remove('hidden');
+          gameState = 'GAMEOVER';
+        } else {
+          overlayMenu.classList.remove('hidden');
+          gameState = 'MENU';
+        }
+      });
+
+      document.getElementById('btn-open-wheel').addEventListener('click', () => {
+        sfxMove();
+        drawFortuneWheel();
+        updateWheelButtons();
+        overlayMenu.classList.add('hidden');
+        overlayWheel.classList.remove('hidden');
+        gameState = 'WHEEL';
+      });
+
+      document.getElementById('btn-close-wheel').addEventListener('click', () => {
+        if (wheelSpinning) return;
+        sfxMove();
+        overlayWheel.classList.add('hidden');
+        overlayMenu.classList.remove('hidden');
+        gameState = 'MENU';
+      });
+
+      document.getElementById('btn-spin-free').addEventListener('click', () => {
+        if (wheelSpinning || !saveState.freeSpinAvailable) return;
+        saveState.freeSpinAvailable = false;
+        writeSave();
+        updateWheelButtons();
+        triggerWheelSpin();
+      });
+
+      document.getElementById('btn-spin-ad').addEventListener('click', () => {
+        if (wheelSpinning) return;
+        playSimulatedAd('REWARDED', () => {
+          triggerWheelSpin();
+        });
+      });
+
+      document.getElementById('btn-open-shop').addEventListener('click', () => {
+        sfxMove();
+        renderShop();
+        overlayMenu.classList.add('hidden');
+        overlayShop.classList.remove('hidden');
+        gameState = 'SHOP';
+      });
+
+      document.getElementById('btn-close-shop').addEventListener('click', () => {
+        sfxMove();
+        overlayShop.classList.add('hidden');
+        overlayMenu.classList.remove('hidden');
+        gameState = 'MENU';
+      });
+
+      document.getElementById('btn-menu-free-coins').addEventListener('click', () => {
+        playSimulatedAd('REWARDED', () => {
+          saveState.coins += 50;
+          writeSave();
+          updateUIStats();
+          showToast('🎉 +50 coins added!');
+        });
+      });
+
+      document.getElementById('btn-shop-watch-ad').addEventListener('click', () => {
+        playSimulatedAd('REWARDED', () => {
+          saveState.coins += 50;
+          writeSave();
+          updateUIStats();
+          renderShop();
+          showToast('🎉 +50 coins added!');
+        });
+      });
+
+      document.getElementById('btn-ad-revive').addEventListener('click', () => {
+        if (revivedThisRun) return;
+        playSimulatedAd('REWARDED', () => {
+          revivedThisRun = true;
+          shieldRemaining = 5.0;
+          entities = [];
+          overlayGameover.classList.add('hidden');
+          gameState = 'PLAYING';
+          showToast('🛡️ Ship repaired with 5s Shield!');
+          startBackgroundMusic();
+          startLoop();
+        });
+      });
+
+      document.getElementById('btn-ad-triple').addEventListener('click', () => {
+        if (tripledThisRun || sessionCoins <= 0) return;
+        playSimulatedAd('REWARDED', () => {
+          tripledThisRun = true;
+          const bonus = sessionCoins * 2;
+          saveState.coins += bonus;
+          sessionCoins += bonus;
+          writeSave();
+          updateUIStats();
+          document.getElementById('go-coins-earned').textContent = '+' + sessionCoins + ' (x3!)';
+          document.getElementById('btn-ad-triple').classList.add('hidden');
+          showToast('🎉 Run coins tripled!');
+        });
+      });
+
+      document.getElementById('btn-use-boost').addEventListener('click', activateCoinShield);
+
+      window.addEventListener('keydown', (e) => {
+        if (gameState !== 'PLAYING') return;
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || e.key === 'q' || e.key === 'Q') {
+          moveLane(-1);
+        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+          moveLane(1);
+        } else if (e.key === ' ' || e.key === 'ArrowUp') {
+          activateCoinShield();
+        }
+      });
+
+      let touchStartX = null;
+      let lastTouchTimestamp = 0;
+
+      canvas.addEventListener('touchstart', (e) => {
+        lastTouchTimestamp = performance.now();
+        if (e.touches && e.touches.length > 0) {
+          touchStartX = e.touches[0].clientX;
+        }
+      }, { passive: true });
+
+      canvas.addEventListener('touchend', (e) => {
+        lastTouchTimestamp = performance.now();
+        if (touchStartX === null || gameState !== 'PLAYING') return;
+        if (e.cancelable) e.preventDefault();
+        const endX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : touchStartX;
+        const diff = endX - touchStartX;
+        if (Math.abs(diff) > 28) {
+          moveLane(diff > 0 ? 1 : -1);
+        } else {
+          const rect = canvas.getBoundingClientRect();
+          const tapX = endX - rect.left;
+          moveLane(tapX < rect.width / 2 ? -1 : 1);
+        }
+        touchStartX = null;
+      }, { passive: false });
+
+      canvas.addEventListener('mousedown', (e) => {
+        if (performance.now() - lastTouchTimestamp < 600) return;
+        if (gameState !== 'PLAYING') return;
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        moveLane(clickX < rect.width / 2 ? -1 : 1);
+      });
+
+      document.getElementById('btn-toggle-music').addEventListener('click', () => {
+        musicEnabled = !musicEnabled;
+        const statusEl = document.getElementById('settings-music-status');
+        if (statusEl) {
+          statusEl.textContent = musicEnabled ? 'ON' : 'OFF';
+          statusEl.className = musicEnabled ? 'font-black text-cyan-300' : 'font-black text-rose-400';
+        }
+        if (musicEnabled && gameState === 'PLAYING') {
+          startBackgroundMusic();
+        } else {
+          stopBackgroundMusic();
+        }
+        showToast(musicEnabled ? '🎵 Music ON' : '🎵 Music OFF');
+      });
+
+      document.getElementById('btn-mute-audio').addEventListener('click', () => {
+        soundMuted = !soundMuted;
+        const statusEl = document.getElementById('settings-sfx-status');
+        if (statusEl) {
+          statusEl.textContent = soundMuted ? 'OFF' : 'ON';
+          statusEl.className = soundMuted ? 'font-black text-rose-400' : 'font-black text-emerald-300';
+        }
+        if (!soundMuted) sfxCoin();
+        showToast(soundMuted ? '🔇 Sound Effects OFF' : '🔊 Sound Effects ON');
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('beforeunload', writeSave);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') writeSave();
+      });
+      updateUIStats();
+      resizeCanvas();
+      drawScene();
+      checkFirstTimeUsernamePrompt();
+      startLoop();
+    })();
+  </script>
+</body>
+</html>
