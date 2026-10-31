@@ -1,3 +1,5 @@
+
+Index · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,11 +41,10 @@
   </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4">
-
-  <!-- Main Mobile Portrait Game Container (Full-Height Canvas, No Top Header Bar) -->
+ 
   <main class="w-full flex items-center justify-center">
     <div class="relative w-full max-w-[400px] h-[720px] sm:h-[760px] rounded-[36px] phone-frame bg-slate-950 overflow-hidden flex flex-col shrink-0">
-
+ 
       <!-- In-Game Top HUD -->
       <div class="relative z-10 flex items-center justify-between px-4 pt-3 pb-2 bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none">
         <div class="flex items-center gap-2">
@@ -55,7 +56,7 @@
             x1
           </div>
         </div>
-
+ 
         <div class="flex items-center gap-1.5 pointer-events-auto">
           <button id="btn-use-boost" type="button" class="px-2.5 py-1.5 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 border border-indigo-400/60 text-white font-black text-[11px] transition shadow" title="Activate Shield (25 coins)">
             🛡️ Shield (25c)
@@ -69,8 +70,8 @@
           </button>
         </div>
       </div>
-
-      <!-- Magic Tiles 3 Style Stars & Crowns Progress Bar -->
+ 
+      <!-- Stars & Crowns Progress Bar -->
       <div id="hud-crown-bar" class="relative z-10 mx-4 mb-1.5 px-3 py-1.5 rounded-2xl bg-slate-900/90 border border-indigo-500/40 shadow-md pointer-events-none">
         <div class="flex items-center justify-between text-[11px] font-black mb-1">
           <span id="crown-phase-label" class="text-amber-300 tracking-wide">⭐ STARS TIER (0/3)</span>
@@ -86,7 +87,7 @@
           <div class="absolute top-0 bottom-0 left-2/3 w-0.5 bg-white/40"></div>
         </div>
       </div>
-
+ 
       <!-- Boss Health Bar Banner -->
       <div id="hud-boss-bar" class="hidden relative z-10 mx-4 mb-1 px-3 py-1.5 rounded-xl bg-rose-950/95 border border-rose-500/70 shadow-lg pointer-events-none">
         <div class="flex items-center justify-between text-[11px] font-black text-rose-200 mb-1">
@@ -97,17 +98,17 @@
           <div id="hud-boss-hp-fill" class="h-full bg-gradient-to-r from-rose-500 via-orange-400 to-amber-300 transition-all duration-100" style="width: 100%;"></div>
         </div>
       </div>
-
+ 
       <!-- Active Powerups Banner -->
       <div id="hud-powerup-bar" class="hidden relative z-10 mx-4 mb-1 px-3 py-1 rounded-xl bg-indigo-950/90 border border-cyan-400/60 flex items-center justify-between text-xs shadow pointer-events-none">
         <span id="hud-powerup-label" class="font-extrabold text-cyan-200">🛡️ Shield Active!</span>
         <span id="hud-powerup-timer" class="font-mono font-bold text-cyan-300">5.0s</span>
       </div>
-
+ 
       <!-- HTML5 Canvas Stage -->
       <div id="canvas-wrapper" class="relative flex-1 w-full h-full min-h-[420px] overflow-hidden bg-slate-950">
         <canvas id="game-canvas" class="absolute inset-0 w-full h-full"></canvas>
-
+ 
         <!-- START / HOME MENU OVERLAY -->
         <div id="overlay-menu" class="absolute inset-0 z-20 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-between p-5 text-center">
           <div class="w-full flex items-center justify-between text-xs bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-300 gap-2">
@@ -118,7 +119,7 @@
               ⚙️
             </button>
           </div>
-
+ 
           <div class="my-auto flex flex-col items-center">
             <div class="px-3.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/50 text-cyan-300 text-xs font-extrabold mb-3">
               ⚡ SPACE ARCADE RUSH ⚡
@@ -129,8 +130,7 @@
             <p class="text-xs sm:text-sm text-slate-300 max-w-[285px] mb-5 leading-relaxed">
               Tap left or right on the screen to switch lanes, dodge red laser barriers, and defeat 10 Space Bosses!
             </p>
-
-            <!-- Mode Selector -->
+ 
             <div class="w-64 bg-slate-900/95 border border-slate-700/80 rounded-2xl p-1.5 grid grid-cols-2 gap-1.5 mb-2.5">
               <button id="btn-mode-boss" type="button" class="py-2 px-2 rounded-xl bg-indigo-600 text-white font-black text-[11px] transition shadow">
                 👾 10 BOSSES (STEADY)
@@ -142,15 +142,15 @@
             <div id="mode-desc-banner" class="w-64 text-[11px] text-cyan-300 font-semibold mb-2 bg-indigo-950/60 border border-indigo-500/30 rounded-xl py-1.5 px-2.5">
               10 Bosses Mode: steady pace that speeds up over time with 10 unique Bosses!
             </div>
-
+ 
             <button id="btn-start-game" type="button" class="w-64 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-pink-500 hover:opacity-95 text-white font-black text-base shadow-xl transition transform active:scale-95 mb-2">
               ▶ PLAY SOLO
             </button>
-
+ 
             <button id="btn-open-multiplayer" type="button" class="w-64 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:opacity-95 text-slate-950 font-black text-xs shadow-lg transition transform active:scale-95 mb-2.5 flex items-center justify-center gap-1.5">
               <span>⚔️ 1v1 ONLINE (PLAY WITH FRIENDS)</span>
             </button>
-
+ 
             <div class="grid grid-cols-2 gap-2 w-64">
               <button id="btn-open-shop" type="button" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-indigo-500/40 text-amber-300 font-extrabold text-xs transition shadow">
                 🚀 Spaceships
@@ -167,13 +167,13 @@
               </button>
             </div>
           </div>
-
+ 
           <div class="w-full text-xs text-slate-400 bg-slate-900/70 rounded-xl py-2 px-3 border border-slate-800/80 flex items-center justify-between">
             <span>👤 Pilot: <strong id="menu-pilot-name" class="text-cyan-300 font-black">---</strong></span>
             <button id="btn-change-username" type="button" class="text-[11px] text-indigo-300 hover:text-white underline font-bold">Edit</button>
           </div>
         </div>
-
+ 
         <!-- FIRST-TIME USERNAME CREATION OVERLAY -->
         <div id="overlay-username" class="hidden absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
           <div class="w-full max-w-[300px] bg-slate-900 border border-cyan-500/50 rounded-3xl p-5 shadow-2xl flex flex-col gap-3.5">
@@ -188,7 +188,7 @@
             </button>
           </div>
         </div>
-
+ 
         <!-- 1v1 ONLINE MULTIPLAYER LOBBY OVERLAY -->
         <div id="overlay-multiplayer" class="hidden absolute inset-0 z-30 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-4 text-center">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 text-left">
@@ -200,16 +200,15 @@
               Close
             </button>
           </div>
-
+ 
           <div class="my-auto flex flex-col gap-3 py-2">
-            <!-- Create Room / Invite Friend Box -->
             <div class="bg-slate-900/90 border border-emerald-500/40 rounded-2xl p-3.5 flex flex-col gap-2">
               <div class="text-xs font-black text-emerald-300 uppercase tracking-wider">1. Invite a Friend</div>
               <p class="text-[11px] text-slate-300">Create a room and share the 5-letter code with your friend:</p>
               <button id="btn-create-room" type="button" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow transition">
                 ➕ CREATE ROOM CODE
               </button>
-
+ 
               <div id="mp-created-room-box" class="hidden mt-1 p-2.5 rounded-xl bg-slate-950 border border-emerald-400/50 flex flex-col items-center gap-1.5">
                 <span class="text-[10px] text-slate-400 font-bold uppercase">Room Invite Code</span>
                 <div class="flex items-center gap-2">
@@ -221,10 +220,9 @@
                 <span id="mp-room-status-text" class="text-[11px] text-cyan-300 font-semibold animate-pulse">Waiting for your friend to join...</span>
               </div>
             </div>
-
+ 
             <div class="text-[11px] font-black text-slate-500 uppercase">— OR —</div>
-
-            <!-- Join Friend's Room Box -->
+ 
             <div class="bg-slate-900/90 border border-indigo-500/40 rounded-2xl p-3.5 flex flex-col gap-2">
               <div class="text-xs font-black text-cyan-300 uppercase tracking-wider">2. Join a Friend's Room</div>
               <div class="flex items-center gap-2">
@@ -235,20 +233,20 @@
               </div>
             </div>
           </div>
-
+ 
           <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
             <span>Pilot: <strong id="mp-pilot-label" class="text-white font-bold">---</strong></span>
             <span id="mp-cloud-status" class="text-emerald-400 font-semibold">● Online Ready</span>
           </div>
         </div>
-
-        <!-- Live 1v1 Opponent Status Pill (During Online Match) -->
+ 
+        <!-- Live 1v1 Opponent Status Pill -->
         <div id="hud-mp-opponent" class="hidden absolute top-2 left-1/2 -translate-x-1/2 z-15 px-3.5 py-1 rounded-full bg-slate-900/95 border border-emerald-400/60 shadow-lg flex items-center gap-2 pointer-events-none">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
           <span id="hud-mp-opponent-text" class="text-[11px] font-black text-emerald-200">VS Friend: ALIVE</span>
         </div>
-
-        <!-- SETTINGS MODAL OVERLAY (Centered Popup) -->
+ 
+        <!-- SETTINGS MODAL OVERLAY -->
         <div id="overlay-settings" class="hidden absolute inset-0 z-30 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
           <div class="w-full max-w-[290px] bg-slate-900 border border-indigo-500/40 rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
@@ -257,25 +255,25 @@
                 ✕
               </button>
             </div>
-
+ 
             <div class="space-y-3">
               <button id="btn-toggle-music" type="button" class="w-full py-3 px-4 rounded-2xl bg-indigo-600/80 hover:bg-indigo-500 text-white text-xs font-bold border border-indigo-400/40 transition flex items-center justify-between">
                 <span>🎵 Background Music</span>
                 <span id="settings-music-status" class="font-black text-cyan-300">ON</span>
               </button>
-
+ 
               <button id="btn-mute-audio" type="button" class="w-full py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center justify-between">
                 <span>🔊 Sound Effects (SFX)</span>
                 <span id="settings-sfx-status" class="font-black text-emerald-300">ON</span>
               </button>
             </div>
-
+ 
             <button id="btn-apply-settings" type="button" class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs transition shadow">
               DONE
             </button>
           </div>
         </div>
-
+ 
         <!-- PAUSE OVERLAY -->
         <div id="overlay-pause" class="hidden absolute inset-0 z-20 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
           <h3 class="text-2xl font-black text-white mb-2">GAME PAUSED</h3>
@@ -290,19 +288,19 @@
             Main Menu
           </button>
         </div>
-
+ 
         <!-- GAME OVER OVERLAY -->
         <div id="overlay-gameover" class="hidden absolute inset-0 z-20 bg-slate-950/92 backdrop-blur-md flex flex-col items-center justify-between p-5 text-center">
           <div class="w-full flex items-center justify-between text-xs text-slate-300 bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-1.5">
             <span>🏆 Best: <strong id="go-high-score" class="text-amber-300 font-black">0</strong></span>
             <span id="go-new-record-badge" class="hidden px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-black text-[10px] animate-bounce">🎉 NEW RECORD!</span>
           </div>
-
+ 
           <div class="my-auto w-full flex flex-col items-center">
             <div id="go-icon-emoji" class="text-4xl mb-1">💥</div>
             <h3 id="go-title-heading" class="text-2xl font-black text-rose-400 tracking-tight mb-1">SHIP DESTROYED!</h3>
             <p id="go-subtitle-desc" class="text-xs text-slate-400 mb-3">A red laser barrier stopped your run!</p>
-
+ 
             <div id="go-crowns-showcase" class="px-4 py-1.5 rounded-2xl bg-indigo-950/90 border border-amber-400/50 text-sm font-black text-amber-300 mb-2.5 tracking-wider shadow">
               ☆☆☆
             </div>
@@ -316,15 +314,15 @@
                 <span id="go-coins-earned" class="text-2xl font-black text-amber-400 tabular-nums">+0</span>
               </div>
             </div>
-
+ 
             <button id="btn-ad-revive" type="button" class="btn-rewarded w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg mb-2.5 flex items-center justify-center gap-2 transition">
               <span>🎬 CONTINUE + FREE SHIELD!</span>
             </button>
-
+ 
             <button id="btn-ad-triple" type="button" class="w-full py-3 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/60 text-emerald-200 font-black text-xs mb-3 flex items-center justify-center gap-2 transition">
               <span>🎬 TRIPLE MY COINS (<span id="go-triple-amount">+0</span>)</span>
             </button>
-
+ 
             <div class="flex items-center gap-2 w-full">
               <button id="btn-play-again" type="button" class="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm transition shadow">
                 🔄 Play Again
@@ -337,12 +335,12 @@
               </button>
             </div>
           </div>
-
+ 
           <div class="text-[11px] text-slate-400">
             8 spaceships and upgrades available in the Hangar!
           </div>
         </div>
-
+ 
         <!-- HANGAR / SHOP OVERLAY -->
         <div id="overlay-shop" class="hidden absolute inset-0 z-20 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-4">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
@@ -354,15 +352,15 @@
               Close
             </button>
           </div>
-
+ 
           <div class="my-2 flex-1 overflow-y-auto space-y-2.5 pr-1">
             <div class="text-xs font-extrabold text-cyan-300 uppercase tracking-wider">8 Spaceships</div>
             <div id="shop-skins-list" class="grid grid-cols-2 gap-2"></div>
-
+ 
             <div class="text-xs font-extrabold text-emerald-300 uppercase tracking-wider pt-2">Super Boosts &amp; Boss Cannons</div>
             <div id="shop-upgrades-list" class="space-y-2"></div>
           </div>
-
+ 
           <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between">
             <span class="text-xs text-slate-300 font-semibold">My Coins: <strong id="shop-coins-balance" class="text-amber-300 text-sm font-black">0</strong></span>
             <button id="btn-shop-watch-ad" type="button" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 font-extrabold text-xs">
@@ -370,7 +368,7 @@
             </button>
           </div>
         </div>
-
+ 
         <!-- MISSIONS OVERLAY PANEL -->
         <div id="overlay-missions" class="hidden absolute inset-0 z-20 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-4">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
@@ -382,15 +380,15 @@
               Close
             </button>
           </div>
-
+ 
           <div id="missions-list-container" class="my-3 flex-1 overflow-y-auto space-y-3 pr-1"></div>
-
+ 
           <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between">
             <span class="text-xs text-slate-300 font-semibold">My Coins: <strong id="missions-coins-balance" class="text-amber-300 text-sm font-black">0</strong></span>
             <span class="text-[11px] text-cyan-300 font-semibold">Progress auto-saved</span>
           </div>
         </div>
-
+ 
         <!-- FORTUNE WHEEL OVERLAY PANEL -->
         <div id="overlay-wheel" class="hidden absolute inset-0 z-20 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-4 text-center">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 text-left">
@@ -402,17 +400,17 @@
               Close
             </button>
           </div>
-
+ 
           <div class="my-auto flex flex-col items-center">
             <div class="text-amber-400 text-xl leading-none mb-1 drop-shadow">▼</div>
             <div class="relative w-[220px] h-[220px] rounded-full p-1.5 bg-gradient-to-tr from-indigo-500 via-pink-500 to-amber-400 shadow-[0_0_30px_rgba(236,72,153,0.35)] mb-3">
               <canvas id="wheel-canvas" width="208" height="208" class="w-full h-full rounded-full"></canvas>
             </div>
-
+ 
             <div id="wheel-result-label" class="text-xs font-extrabold text-cyan-300 min-h-[20px] mb-3">
               Spin the wheel to win up to 200 coins!
             </div>
-
+ 
             <div class="w-full space-y-2">
               <button id="btn-spin-free" type="button" class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:opacity-95 text-slate-950 font-black text-sm shadow-lg transition">
                 🎡 FREE SPIN!
@@ -422,20 +420,20 @@
               </button>
             </div>
           </div>
-
+ 
           <div class="pt-2.5 border-t border-slate-800 flex items-center justify-between">
             <span class="text-xs text-slate-300 font-semibold">My Coins: <strong id="wheel-coins-balance" class="text-amber-300 text-sm font-black">0</strong></span>
             <span id="wheel-free-status" class="text-[11px] text-emerald-400 font-bold">1 free spin available</span>
           </div>
         </div>
-
-        <!-- NORMAL IN-GAME VIDEO AD OVERLAY -->
+ 
+        <!-- IN-GAME VIDEO AD OVERLAY -->
         <div id="overlay-ad-player" class="hidden absolute inset-0 z-30 bg-black flex flex-col justify-between p-4">
           <div class="flex items-center justify-between bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2">
             <span id="ad-badge-type" class="px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-black text-[10px]">🎬 REWARDED VIDEO</span>
             <span id="ad-countdown-pill" class="text-xs font-mono font-bold text-white bg-slate-800 px-2.5 py-0.5 rounded-lg">4s</span>
           </div>
-
+ 
           <div class="my-auto flex flex-col items-center text-center p-5 rounded-2xl bg-gradient-to-br from-indigo-950 via-slate-900 to-fuchsia-950 border border-indigo-500/40 shadow-2xl">
             <div class="text-5xl mb-3 animate-bounce">
               🎮🚀✨
@@ -449,7 +447,7 @@
             </div>
             <span id="ad-status-text" class="text-xs text-amber-300 font-bold">Loading reward...</span>
           </div>
-
+ 
           <div class="flex items-center justify-end">
             <button id="btn-close-ad" type="button" disabled class="w-full py-3 rounded-xl bg-slate-800 text-slate-500 font-black text-xs transition cursor-not-allowed">
               Wait 4s...
@@ -459,200 +457,169 @@
       </div>
     </div>
   </main>
-
+ 
   <!-- Toast Notification -->
   <div id="toast-msg" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2 rounded-xl bg-slate-900 border border-cyan-400/60 text-white text-xs font-bold shadow-2xl">
     Notification
   </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+ 
+  <!-- ONLINE 1v1 (PeerJS / WebRTC) — no account or API key needed -->
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script>
+    const PEER_PREFIX = 'neonskyrush-';
+ 
     window.NeonCloud = {
-      db: null,
-      auth: null,
-      user: null,
-      appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id',
-      ready: false,
-      activeRoomUnsub: null,
-
-      async init() {
-        try {
-          if (typeof __firebase_config === 'undefined' || !__firebase_config) return;
-          const firebaseConfig = JSON.parse(__firebase_config);
-          const app = initializeApp(firebaseConfig);
-          this.db = getFirestore(app);
-          this.auth = getAuth(app);
-
-          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(this.auth, __initial_auth_token);
-          } else {
-            await signInAnonymously(this.auth);
-          }
-          this.user = this.auth.currentUser;
-          this.ready = Boolean(this.user);
-          if (this.ready && typeof window.onNeonCloudReady === 'function') {
-            window.onNeonCloudReady();
-          }
-        } catch (err) {
-          console.warn('Cloud init fallback to local mode:', err);
+      ready: typeof Peer !== 'undefined',
+      peer: null,
+      conn: null,
+      room: null,
+      onUpdate: null,
+      isHost: false,
+ 
+      async init() {},
+      async saveProfile() {},
+      async loadProfile() { return null; },
+ 
+      _emit() {
+        if (this.onUpdate && this.room) this.onUpdate(Object.assign({}, this.room));
+      },
+ 
+      _onData(msg) {
+        if (!this.room || !msg) return;
+        if (msg.t === 'state') {
+          if (this.isHost) { this.room.guestLane = msg.lane; this.room.guestScore = msg.score; }
+          else { this.room.hostLane = msg.lane; this.room.hostScore = msg.score; }
+          this._emit();
+        } else if (msg.t === 'crash') {
+          if (this.isHost) this.room.guestAlive = false;
+          else this.room.hostAlive = false;
+          this.room.status = 'finished';
+          this._emit();
         }
       },
-
-      async saveProfile(saveState) {
-        if (!this.ready || !this.user || !this.db) return;
-        try {
-          const ref = doc(this.db, 'artifacts', this.appId, 'users', this.user.uid, 'profile', 'main');
-          await setDoc(ref, {
-            username: saveState.username || '',
-            highScore: saveState.highScore || 0,
-            coins: saveState.coins || 60,
-            gamesPlayed: saveState.gamesPlayed || 0,
-            selectedSkin: saveState.selectedSkin || 'cyber',
-            unlockedSkins: JSON.stringify(saveState.unlockedSkins || ['cyber']),
-            magnetLevel: saveState.magnetLevel || 1,
-            scoreMultLevel: saveState.scoreMultLevel || 1,
-            laserLevel: saveState.laserLevel || 1,
-            freeSpinAvailable: Boolean(saveState.freeSpinAvailable),
-            bestCrowns: saveState.bestCrowns || 0,
-            missions: JSON.stringify(saveState.missions || []),
-            updatedAt: Date.now()
-          }, { merge: true });
-        } catch (e) {}
+ 
+      // If the opponent disconnects mid-match, they count as crashed
+      _onClose() {
+        if (!this.room || this.room.status !== 'playing') return;
+        if (this.isHost) this.room.guestAlive = false;
+        else this.room.hostAlive = false;
+        this.room.status = 'finished';
+        this._emit();
       },
-
-      async loadProfile() {
-        if (!this.ready || !this.user || !this.db) return null;
-        try {
-          const ref = doc(this.db, 'artifacts', this.appId, 'users', this.user.uid, 'profile', 'main');
-          const snap = await getDoc(ref);
-          if (!snap.exists()) return null;
-          const d = snap.data();
-          return {
-            username: d.username || '',
-            highScore: d.highScore || 0,
-            coins: typeof d.coins === 'number' ? d.coins : 60,
-            gamesPlayed: d.gamesPlayed || 0,
-            selectedSkin: d.selectedSkin || 'cyber',
-            unlockedSkins: d.unlockedSkins ? JSON.parse(d.unlockedSkins) : ['cyber'],
-            magnetLevel: d.magnetLevel || 1,
-            scoreMultLevel: d.scoreMultLevel || 1,
-            laserLevel: d.laserLevel || 1,
-            freeSpinAvailable: typeof d.freeSpinAvailable === 'boolean' ? d.freeSpinAvailable : true,
-            bestCrowns: d.bestCrowns || 0,
-            missions: d.missions ? JSON.parse(d.missions) : null
-          };
-        } catch (e) {
-          return null;
-        }
-      },
-
-      async createRoom(roomCode, hostUsername, hostSkin) {
-        if (!this.ready || !this.user || !this.db) throw new Error('Cloud not connected');
-        const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
-        const roomData = {
-          roomCode,
-          status: 'waiting',
-          hostUid: this.user.uid,
-          hostName: hostUsername,
-          hostSkin: hostSkin || 'cyber',
-          hostLane: 1,
-          hostScore: 0,
-          hostAlive: true,
-          guestUid: '',
-          guestName: '',
-          guestSkin: 'solar',
-          guestLane: 1,
-          guestScore: 0,
-          guestAlive: true,
-          winnerUid: '',
-          winnerName: '',
-          loserName: '',
-          createdAt: Date.now()
-        };
-        await setDoc(ref, roomData);
-        return roomData;
-      },
-
-      async joinRoom(roomCode, guestUsername, guestSkin) {
-        if (!this.ready || !this.user || !this.db) throw new Error('Cloud not connected');
-        const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
-        const snap = await getDoc(ref);
-        if (!snap.exists()) throw new Error('Room code not found!');
-        const data = snap.data();
-        if (data.status !== 'waiting' && data.guestUid !== this.user.uid && data.hostUid !== this.user.uid) {
-          throw new Error('This match has already started!');
-        }
-        await updateDoc(ref, {
-          guestUid: this.user.uid,
-          guestName: guestUsername,
-          guestSkin: guestSkin || 'solar',
-          guestLane: 1,
-          guestScore: 0,
-          guestAlive: true,
-          status: 'playing',
-          startedAt: Date.now()
-        });
-        return data;
-      },
-
-      listenRoom(roomCode, onUpdate) {
+ 
+      createRoom(roomCode, hostUsername, hostSkin) {
         this.stopListeningRoom();
-        if (!this.ready || !this.user || !this.db) return;
-        const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
-        this.activeRoomUnsub = onSnapshot(
-          ref,
-          (snap) => {
-            if (snap.exists() && typeof onUpdate === 'function') {
-              onUpdate(snap.data());
-            }
-          },
-          (err) => {
-            console.warn('Room listener error:', err);
-          }
-        );
-      },
-
-      async syncPlayerState(roomCode, isHost, lane, score) {
-        if (!this.ready || !this.user || !this.db || !roomCode) return;
-        try {
-          const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
-          if (isHost) {
-            await updateDoc(ref, { hostLane: lane, hostScore: Math.floor(score) });
-          } else {
-            await updateDoc(ref, { guestLane: lane, guestScore: Math.floor(score) });
-          }
-        } catch (e) {}
-      },
-
-      async reportCrash(roomCode, isHost, myName, opponentName) {
-        if (!this.ready || !this.user || !this.db || !roomCode) return;
-        try {
-          const ref = doc(this.db, 'artifacts', this.appId, 'public', 'data', 'mp_rooms', roomCode);
-          const payload = {
-            status: 'finished',
-            winnerName: opponentName || 'Opponent',
-            loserName: myName || 'Pilot'
+        return new Promise((resolve, reject) => {
+          if (!this.ready) return reject(new Error('PeerJS not loaded'));
+          this.isHost = true;
+          this.room = {
+            roomCode, status: 'waiting',
+            hostName: hostUsername, hostSkin: hostSkin || 'cyber', hostLane: 1, hostScore: 0, hostAlive: true,
+            guestName: '', guestSkin: 'solar', guestLane: 1, guestScore: 0, guestAlive: true
           };
-          if (isHost) payload.hostAlive = false;
-          else payload.guestAlive = false;
-          await updateDoc(ref, payload);
+          const peer = new Peer(PEER_PREFIX + roomCode);
+          this.peer = peer;
+          let opened = false;
+          const timer = setTimeout(() => { if (!opened) reject(new Error('Server timeout, retry')); }, 10000);
+ 
+          peer.on('open', () => { opened = true; clearTimeout(timer); resolve(Object.assign({}, this.room)); });
+          peer.on('error', (err) => {
+            if (!opened) { clearTimeout(timer); reject(new Error(err.type === 'unavailable-id' ? 'Code already used, retry' : 'Connection error: ' + err.type)); }
+          });
+          peer.on('connection', (conn) => {
+            if (this.conn && this.room && this.room.status !== 'waiting') {
+              conn.on('open', () => { conn.send({ t: 'full' }); setTimeout(() => conn.close(), 300); });
+              return;
+            }
+            this.conn = conn;
+            conn.on('data', (msg) => {
+              if (msg && msg.t === 'hello' && this.room) {
+                this.room.guestName = msg.name || 'Friend';
+                this.room.guestSkin = msg.skin || 'solar';
+                this.room.status = 'playing';
+                conn.send({ t: 'start', hostName: this.room.hostName, hostSkin: this.room.hostSkin });
+                this._emit();
+              } else {
+                this._onData(msg);
+              }
+            });
+            conn.on('close', () => this._onClose());
+          });
+        });
+      },
+ 
+      joinRoom(roomCode, guestUsername, guestSkin) {
+        this.stopListeningRoom();
+        return new Promise((resolve, reject) => {
+          if (!this.ready) return reject(new Error('PeerJS not loaded'));
+          this.isHost = false;
+          const peer = new Peer();
+          this.peer = peer;
+          let done = false;
+          const fail = (m) => {
+            if (done) return;
+            done = true; clearTimeout(timer);
+            try { peer.destroy(); } catch (e) {}
+            this.peer = null; this.conn = null;
+            reject(new Error(m));
+          };
+          const timer = setTimeout(() => fail('Room not found or no response'), 10000);
+ 
+          peer.on('error', (err) => fail(err.type === 'peer-unavailable' ? 'Room code not found!' : 'Connection error: ' + err.type));
+          peer.on('open', () => {
+            const conn = peer.connect(PEER_PREFIX + roomCode, { reliable: true });
+            this.conn = conn;
+            conn.on('open', () => conn.send({ t: 'hello', name: guestUsername, skin: guestSkin }));
+            conn.on('data', (msg) => {
+              if (!msg) return;
+              if (msg.t === 'start' && !done) {
+                done = true; clearTimeout(timer);
+                this.room = {
+                  roomCode, status: 'playing',
+                  hostName: msg.hostName, hostSkin: msg.hostSkin, hostLane: 1, hostScore: 0, hostAlive: true,
+                  guestName: guestUsername, guestSkin: guestSkin, guestLane: 1, guestScore: 0, guestAlive: true
+                };
+                resolve(Object.assign({}, this.room));
+              } else if (msg.t === 'full') {
+                fail('This match has already started!');
+              } else {
+                this._onData(msg);
+              }
+            });
+            conn.on('close', () => this._onClose());
+          });
+        });
+      },
+ 
+      listenRoom(roomCode, onUpdate) {
+        this.onUpdate = onUpdate;
+      },
+ 
+      async syncPlayerState(roomCode, isHost, lane, score) {
+        try {
+          if (this.conn && this.conn.open) this.conn.send({ t: 'state', lane: lane, score: Math.floor(score) });
         } catch (e) {}
       },
-
+ 
+      async reportCrash() {
+        try {
+          if (this.conn && this.conn.open) this.conn.send({ t: 'crash' });
+        } catch (e) {}
+      },
+ 
       stopListeningRoom() {
-        if (this.activeRoomUnsub) {
-          this.activeRoomUnsub();
-          this.activeRoomUnsub = null;
-        }
+        this.onUpdate = null;
+        const p = this.peer, c = this.conn;
+        this.peer = null; this.conn = null; this.room = null;
+        // small delay so the "crash" message is sent before closing
+        setTimeout(() => {
+          try { if (c) c.close(); } catch (e) {}
+          try { if (p) p.destroy(); } catch (e) {}
+        }, 1500);
       }
     };
-
-    window.NeonCloud.init();
   </script>
-
+ 
   <script>
     (function() {
       const ADMOB_CONFIG = {
@@ -660,8 +627,13 @@
         androidInterstitialId: 'ca-app-pub-3940256099942544/1033173712',
         isTesting: true
       };
-
+ 
       const STORAGE_KEY = 'neon_sky_rush_save_v1';
+      const DEFAULT_MISSIONS = () => ([
+        { id: 'laser_targets', title: 'Boss Assault', desc: 'Hit a Boss 25 times with lasers', progress: 0, target: 25, reward: 60, tier: 1, icon: '⚡' },
+        { id: 'defeat_boss', title: 'Boss Hunter', desc: 'Defeat 1 Space Boss', progress: 0, target: 1, reward: 120, tier: 1, icon: '👾' },
+        { id: 'collect_coins', title: 'Gold Collector', desc: 'Collect 50 coins in runs', progress: 0, target: 50, reward: 80, tier: 1, icon: '🪙' }
+      ]);
       let saveState = {
         username: '',
         highScore: 0,
@@ -674,13 +646,9 @@
         laserLevel: 1,
         freeSpinAvailable: true,
         bestCrowns: 0,
-        missions: [
-          { id: 'laser_targets', title: 'Boss Assault', desc: 'Hit a Boss 25 times with lasers', progress: 0, target: 25, reward: 60, tier: 1, icon: '⚡' },
-          { id: 'defeat_boss', title: 'Boss Hunter', desc: 'Defeat 1 Space Boss', progress: 0, target: 1, reward: 120, tier: 1, icon: '👾' },
-          { id: 'collect_coins', title: 'Gold Collector', desc: 'Collect 50 coins in runs', progress: 0, target: 50, reward: 80, tier: 1, icon: '🪙' }
-        ]
+        missions: DEFAULT_MISSIONS()
       };
-
+ 
       function loadSave() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
@@ -692,11 +660,7 @@
             if (typeof saveState.freeSpinAvailable !== 'boolean') saveState.freeSpinAvailable = true;
             if (!saveState.bestCrowns) saveState.bestCrowns = 0;
             if (!Array.isArray(saveState.missions) || saveState.missions.length !== 3) {
-              saveState.missions = [
-                { id: 'laser_targets', title: 'Boss Assault', desc: 'Hit a Boss 25 times with lasers', progress: 0, target: 25, reward: 60, tier: 1, icon: '⚡' },
-                { id: 'defeat_boss', title: 'Boss Hunter', desc: 'Defeat 1 Space Boss', progress: 0, target: 1, reward: 120, tier: 1, icon: '👾' },
-                { id: 'collect_coins', title: 'Gold Collector', desc: 'Collect 50 coins in runs', progress: 0, target: 50, reward: 80, tier: 1, icon: '🪙' }
-              ];
+              saveState.missions = DEFAULT_MISSIONS();
             } else {
               saveState.missions.forEach(m => {
                 if (m.id === 'laser_targets') {
@@ -714,43 +678,22 @@
           }
         } catch (e) {}
       }
-
+ 
       function writeSave() {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(saveState));
-          if (window.NeonCloud && window.NeonCloud.ready) {
-            window.NeonCloud.saveProfile(saveState);
-          }
         } catch (e) {}
       }
-
+ 
       loadSave();
       writeSave();
-
-      window.onNeonCloudReady = async function() {
-        const cloudData = await window.NeonCloud.loadProfile();
-        if (cloudData) {
-          if (cloudData.username && !saveState.username) saveState.username = cloudData.username;
-          saveState.highScore = Math.max(saveState.highScore || 0, cloudData.highScore || 0);
-          saveState.coins = Math.max(saveState.coins || 0, cloudData.coins || 0);
-          saveState.gamesPlayed = Math.max(saveState.gamesPlayed || 0, cloudData.gamesPlayed || 0);
-          saveState.bestCrowns = Math.max(saveState.bestCrowns || 0, cloudData.bestCrowns || 0);
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(saveState));
-          } catch (e) {}
-          updateUIStats();
-          checkFirstTimeUsernamePrompt();
-        } else {
-          window.NeonCloud.saveProfile(saveState);
-        }
-      };
-
+ 
       let audioCtx = null;
       let soundMuted = false;
       let musicEnabled = true;
       let bgmTimerId = null;
       let bgmStep = 0;
-
+ 
       const MELODY_NOTES = [
         440.00, 523.25, 659.25, 880.00, 783.99, 659.25, 523.25, 659.25,
         392.00, 493.88, 587.33, 783.99, 659.25, 587.33, 493.88, 587.33,
@@ -763,7 +706,7 @@
         220.00, 0, 220.00, 164.81, 196.00, 0, 196.00, 146.83,
         174.61, 0, 196.00, 0,      220.00, 164.81, 220.00, 0
       ];
-
+ 
       function ensureAudio() {
         try {
           if (!audioCtx) {
@@ -778,7 +721,7 @@
         }
         return audioCtx;
       }
-
+ 
       function playSynthNote(freq, type, startTime, duration, vol, slideTo = null) {
         if (!audioCtx || freq <= 0) return;
         try {
@@ -798,7 +741,7 @@
           osc.stop(startTime + duration + 0.01);
         } catch (e) {}
       }
-
+ 
       function playDrumHit(startTime, duration, vol, highpassFreq = 3000) {
         if (!audioCtx) return;
         try {
@@ -821,19 +764,19 @@
           noise.start(startTime);
         } catch (e) {}
       }
-
+ 
       function startBackgroundMusic() {
         stopBackgroundMusic();
         if (!musicEnabled) return;
         const ctx = ensureAudio();
         if (!ctx) return;
-
+ 
         bgmTimerId = setInterval(() => {
           if (!musicEnabled || gameState !== 'PLAYING' || !audioCtx) return;
           const now = audioCtx.currentTime;
           const mNote = MELODY_NOTES[bgmStep % MELODY_NOTES.length];
           const bNote = BASS_NOTES[bgmStep % BASS_NOTES.length];
-
+ 
           if (mNote > 0) {
             playSynthNote(mNote, 'triangle', now, 0.13, 0.05);
             playSynthNote(mNote * 2, 'sine', now, 0.07, 0.018);
@@ -847,14 +790,14 @@
           bgmStep = (bgmStep + 1) % MELODY_NOTES.length;
         }, 150);
       }
-
+ 
       function stopBackgroundMusic() {
         if (bgmTimerId) {
           clearInterval(bgmTimerId);
           bgmTimerId = null;
         }
       }
-
+ 
       function sfxMove() {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -863,7 +806,7 @@
         playSynthNote(280, 'triangle', now, 0.08, 0.13, 680);
         playSynthNote(560, 'sine', now + 0.02, 0.06, 0.08, 920);
       }
-
+ 
       function sfxLaser() {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -871,7 +814,7 @@
         const now = ctx.currentTime;
         playSynthNote(1200, 'sawtooth', now, 0.045, 0.045, 320);
       }
-
+ 
       function sfxLaserHit() {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -880,7 +823,7 @@
         playDrumHit(now, 0.06, 0.09, 1000);
         playSynthNote(440, 'triangle', now, 0.07, 0.08, 160);
       }
-
+ 
       function sfxBossAlert() {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -889,7 +832,7 @@
         playSynthNote(220, 'sawtooth', now, 0.22, 0.14, 440);
         playSynthNote(220, 'sawtooth', now + 0.26, 0.28, 0.14, 440);
       }
-
+ 
       function sfxCoin() {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -900,7 +843,7 @@
         playSynthNote(1318.51 * mult, 'sine', now + 0.055, 0.16, 0.16);
         playSynthNote(1975.53 * mult, 'triangle', now + 0.08, 0.11, 0.06);
       }
-
+ 
       function sfxGate() {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -912,7 +855,7 @@
           playSynthNote(n * 1.5, 'sine', now + i * 0.04, 0.12, 0.05);
         });
       }
-
+ 
       function sfxShield() {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -921,7 +864,7 @@
         playSynthNote(320, 'sine', now, 0.14, 0.15, 640);
         playSynthNote(480, 'triangle', now + 0.09, 0.22, 0.14, 1120);
       }
-
+ 
       function sfxCrash() {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -931,7 +874,7 @@
         playSynthNote(300, 'sawtooth', now, 0.22, 0.16, 55);
         playSynthNote(180, 'triangle', now + 0.1, 0.28, 0.16, 40);
       }
-
+ 
       function sfxCrown(isCrownPhase) {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -945,7 +888,7 @@
           playSynthNote(n * 2, 'sine', now + i * 0.055, 0.16, 0.07);
         });
       }
-
+ 
       function sfxReward() {
         if (soundMuted) return;
         const ctx = ensureAudio();
@@ -959,7 +902,7 @@
           playSynthNote(n * 2, 'sine', now + offsets[i], durs[i], 0.06);
         });
       }
-
+ 
       const SKINS = [
         { id: 'cyber', name: 'Cyber Falcon', cost: 0, color: '#38bdf8', glow: '#0284c7' },
         { id: 'solar', name: 'Golden Comet', cost: 80, color: '#fbbf24', glow: '#d97706' },
@@ -970,23 +913,23 @@
         { id: 'titan', name: 'Arctic Titan', cost: 700, color: '#2dd4bf', glow: '#0d9488' },
         { id: 'omega', name: 'Omega Dragon', cost: 1000, color: '#f97316', glow: '#ea580c' }
       ];
-
+ 
       const canvas = document.getElementById('game-canvas');
       const ctx = canvas.getContext('2d');
       const wrapper = document.getElementById('canvas-wrapper');
-
+ 
       const hudScore = document.getElementById('hud-score');
       const hudCoins = document.getElementById('hud-coins');
       const hudComboBadge = document.getElementById('hud-combo-badge');
       const hudPowerupBar = document.getElementById('hud-powerup-bar');
       const hudPowerupLabel = document.getElementById('hud-powerup-label');
       const hudPowerupTimer = document.getElementById('hud-powerup-timer');
-
+ 
       const hudBossBar = document.getElementById('hud-boss-bar');
       const hudBossName = document.getElementById('hud-boss-name');
       const hudBossHpText = document.getElementById('hud-boss-hp-text');
       const hudBossHpFill = document.getElementById('hud-boss-hp-fill');
-
+ 
       const overlayMenu = document.getElementById('overlay-menu');
       const overlayUsername = document.getElementById('overlay-username');
       const overlayMultiplayer = document.getElementById('overlay-multiplayer');
@@ -1000,7 +943,7 @@
       const hudMpOpponent = document.getElementById('hud-mp-opponent');
       const hudMpOpponentText = document.getElementById('hud-mp-opponent-text');
       const toastMsg = document.getElementById('toast-msg');
-
+ 
       // --- 1v1 ONLINE MULTIPLAYER STATE ---
       let isMultiplayerMatch = false;
       let mpRoomCode = '';
@@ -1012,7 +955,7 @@
       let mpOpponentScore = 0;
       let mpMatchEnded = false;
       let mpSyncTimer = 0;
-
+ 
       let toastTimeout = null;
       function showToast(text) {
         toastMsg.textContent = text;
@@ -1022,13 +965,13 @@
           toastMsg.classList.add('hidden');
         }, 2400);
       }
-
+ 
       let animFrameId = null;
       let adIntervalId = null;
-
+ 
       let gameState = 'MENU';
       let previousStateBeforeAd = 'MENU';
-
+ 
       let laneCount = 3;
       let currentLane = 1;
       let playerX = 0;
@@ -1044,7 +987,7 @@
       let tripledThisRun = false;
       let watchedRewardedThisRun = false;
       let screenShake = 0;
-
+ 
       let selectedGameMode = 'BOSS_10';
       let lasers = [];
       let autoLaserTimer = 0;
@@ -1053,22 +996,22 @@
       let bossLevel = 0;
       let activeBoss = null;
       let modeVictoryAchieved = false;
-
+ 
       const MT_THRESHOLDS = [380, 820, 1300, 1900, 2600, 3400];
       let runProgressPoints = 0;
       let mtStage = 0;
-
+ 
       let entities = [];
       let particles = [];
       let floatingTexts = [];
       let stars = [];
       let spawnTimer = 0;
       let lastFrameTime = 0;
-
+ 
       function getPlayerY() {
         return canvas.height - 135;
       }
-
+ 
       function initStars(w, h) {
         stars = [];
         for (let i = 0; i < 45; i++) {
@@ -1080,7 +1023,7 @@
           });
         }
       }
-
+ 
       function resizeCanvas() {
         const rect = wrapper.getBoundingClientRect();
         canvas.width = Math.max(280, Math.floor(rect.width || wrapper.clientWidth || 380));
@@ -1092,7 +1035,7 @@
         }
         drawScene();
       }
-
+ 
       function getLaneCenterX(laneIndex) {
         const w = canvas.width || 380;
         const margin = w * 0.16;
@@ -1100,7 +1043,7 @@
         const laneWidth = usable / laneCount;
         return margin + laneWidth * (laneIndex + 0.5);
       }
-
+ 
       function updateUIStats() {
         hudCoins.textContent = saveState.coins;
         document.getElementById('menu-high-score').textContent = saveState.highScore;
@@ -1116,7 +1059,7 @@
         if (mBal) mBal.textContent = saveState.coins;
         const wBal = document.getElementById('wheel-coins-balance');
         if (wBal) wBal.textContent = saveState.coins;
-
+ 
         const readyCount = (saveState.missions || []).filter(m => m.progress >= m.target).length;
         const badge = document.getElementById('missions-ready-badge');
         if (badge) {
@@ -1128,7 +1071,7 @@
           }
         }
       }
-
+ 
       function checkFirstTimeUsernamePrompt() {
         if (!saveState.username || saveState.username.trim().length < 2) {
           overlayUsername.classList.remove('hidden');
@@ -1138,7 +1081,7 @@
           overlayUsername.classList.add('hidden');
         }
       }
-
+ 
       function advanceMission(missionId, amount = 1) {
         if (!saveState.missions) return;
         const m = saveState.missions.find(item => item.id === missionId);
@@ -1152,14 +1095,14 @@
         writeSave();
         updateUIStats();
       }
-
+ 
       function updateCrownBarUI() {
         const phaseLabel = document.getElementById('crown-phase-label');
         const fillEl = document.getElementById('crown-progress-fill');
         const ic1 = document.getElementById('mt-icon-1');
         const ic2 = document.getElementById('mt-icon-2');
         const ic3 = document.getElementById('mt-icon-3');
-
+ 
         if (mtStage < 3) {
           const cap = MT_THRESHOLDS[2];
           const pct = Math.min(100, (runProgressPoints / cap) * 100);
@@ -1168,7 +1111,7 @@
           const modeTag = isMultiplayerMatch ? '⚔️ 1v1 FREE • ' : (selectedGameMode === 'BOSS_10' ? ('BOSS ' + bossLevel + '/10 • ') : 'FREE MODE • ');
           phaseLabel.textContent = modeTag + 'STARS (' + mtStage + '/3)';
           phaseLabel.className = 'text-amber-300 tracking-wide';
-
+ 
           ic1.textContent = '⭐';
           ic2.textContent = '⭐';
           ic3.textContent = '⭐';
@@ -1187,7 +1130,7 @@
           const modeTag = isMultiplayerMatch ? '⚔️ 1v1 FREE • ' : (selectedGameMode === 'BOSS_10' ? ('BOSS ' + bossLevel + '/10 • ') : 'FREE MODE • ');
           phaseLabel.textContent = modeTag + 'CROWNS (' + crownsEarned + '/3)';
           phaseLabel.className = 'text-pink-300 tracking-wide';
-
+ 
           ic1.textContent = '👑';
           ic2.textContent = '👑';
           ic3.textContent = '👑';
@@ -1196,7 +1139,7 @@
           ic3.className = crownsEarned >= 3 ? 'opacity-100 scale-115 transition-all duration-300 drop-shadow-[0_0_8px_#f472b6]' : 'opacity-30 transition-all duration-300';
         }
       }
-
+ 
       function startNewGame(startAsMultiplayer = false) {
         ensureAudio();
         isMultiplayerMatch = Boolean(startAsMultiplayer);
@@ -1212,7 +1155,7 @@
           if (window.NeonCloud) window.NeonCloud.stopListeningRoom();
           hudMpOpponent.classList.add('hidden');
         }
-
+ 
         gameState = 'PLAYING';
         currentLane = 1;
         targetX = getLaneCenterX(1);
@@ -1241,7 +1184,7 @@
         runProgressPoints = 0;
         mtStage = 0;
         updateCrownBarUI();
-
+ 
         overlayMenu.classList.add('hidden');
         overlayMultiplayer.classList.add('hidden');
         overlaySettings.classList.add('hidden');
@@ -1251,24 +1194,24 @@
         overlayMissions.classList.add('hidden');
         overlayWheel.classList.add('hidden');
         overlayAdPlayer.classList.add('hidden');
-
+ 
         hudScore.textContent = '0';
         hudComboBadge.classList.add('hidden');
         hudPowerupBar.classList.add('hidden');
         hudBossBar.classList.add('hidden');
-
+ 
         startBackgroundMusic();
         lastFrameTime = performance.now();
         startLoop();
       }
-
+ 
       let lastLaneMoveTime = 0;
       function moveLane(delta) {
         if (gameState !== 'PLAYING') return;
         const now = performance.now();
         if (now - lastLaneMoveTime < 65) return;
         lastLaneMoveTime = now;
-
+ 
         const step = delta > 0 ? 1 : -1;
         const next = Math.max(0, Math.min(laneCount - 1, currentLane + step));
         if (next !== currentLane) {
@@ -1280,12 +1223,12 @@
           }
         }
       }
-
+ 
       function fireBossLaser() {
         if (gameState !== 'PLAYING' || !activeBoss) return;
         const playerY = getPlayerY();
         const skin = SKINS.find(s => s.id === saveState.selectedSkin) || SKINS[0];
-
+ 
         if (saveState.laserLevel >= 3) {
           lasers.push({ x: playerX - 9, y: playerY - 22, color: skin.color, dmg: 1 });
           lasers.push({ x: playerX + 9, y: playerY - 22, color: skin.color, dmg: 1 });
@@ -1294,7 +1237,7 @@
         }
         sfxLaser();
       }
-
+ 
       const BOSS_ARCHETYPES = [
         { name: '👾 BOSS 1/10: RUBY SENTINEL', hullColor: '#e11d48', glowColor: '#f43f5e', coreColor: '#fde047', shotColor: '#ec4899', pattern: 'single' },
         { name: '🛸 BOSS 2/10: NEBULA CRUISER', hullColor: '#9333ea', glowColor: '#c084fc', coreColor: '#38bdf8', shotColor: '#a855f7', pattern: 'double' },
@@ -1307,7 +1250,7 @@
         { name: '🐉 BOSS 9/10: SUPERNOVA DRAGON', hullColor: '#d97706', glowColor: '#fbbf24', coreColor: '#ffffff', shotColor: '#facc15', pattern: 'double' },
         { name: '👑 BOSS 10/10: OMEGA EMPEROR', hullColor: '#be123c', glowColor: '#fb7185', coreColor: '#fde047', shotColor: '#f43f5e', pattern: 'burst' }
       ];
-
+ 
       function spawnBoss() {
         if (selectedGameMode !== 'BOSS_10' || bossLevel >= 10) return;
         bossLevel += 1;
@@ -1316,7 +1259,7 @@
         activeBoss = {
           x: getLaneCenterX(1),
           y: -50,
-          targetY: 112, // Positioned lower so the Boss ship is clearly visible below the top HUD
+          targetY: 112,
           lane: 1,
           moveTimer: 1.25,
           fireTimer: 1.35,
@@ -1337,7 +1280,7 @@
         sfxBossAlert();
         showToast('⚠️ ' + arch.name + '! Rapid Auto-Laser engaged!');
       }
-
+ 
       function activateCoinShield() {
         if (gameState !== 'PLAYING') return;
         if (shieldRemaining > 0) {
@@ -1355,21 +1298,20 @@
         updateUIStats();
         showToast('🛡️ Shield activated (6s)!');
       }
-
+ 
       function spawnWave() {
         const pattern = Math.random();
         const y = -40;
-
+ 
         if (activeBoss) {
           const coinLane = Math.floor(Math.random() * 3);
           entities.push({ type: 'coin', lane: coinLane, y: y, hit: false });
           return;
         }
-
+ 
         const isEarlyGame = score < 220;
-
+ 
         if (pattern < 0.45 || isEarlyGame) {
-          // 1 Red Laser Barrier + 3 Coins in another lane
           const obsLane = Math.floor(Math.random() * 3);
           entities.push({ type: 'obstacle', lane: obsLane, y: y, hit: false });
           const coinLane = (obsLane + 1 + Math.floor(Math.random() * 2)) % 3;
@@ -1377,7 +1319,6 @@
             entities.push({ type: 'coin', lane: coinLane, y: y - i * 44, hit: false });
           }
         } else if (pattern < 0.84) {
-          // 2 Red Laser Barriers blocking 2 lanes, leaving 1 safe passage with a coin
           const safeLane = Math.floor(Math.random() * 3);
           for (let l = 0; l < 3; l++) {
             if (l !== safeLane) {
@@ -1387,20 +1328,17 @@
             }
           }
         } else if (pattern < 0.96) {
-          // Combo +1 Gate + 1 Red Laser Barrier
           const gateLane = Math.floor(Math.random() * 3);
           entities.push({ type: 'gate', lane: gateLane, y: y, hit: false });
           const obsLane = (gateLane + 1) % 3;
           entities.push({ type: 'obstacle', lane: obsLane, y: y, hit: false });
         } else if (pattern < 0.988) {
-          // RARE Magnet or Turbo Pickup (~2.8% chance) + 1 Red Laser Barrier
           const bonusLane = Math.floor(Math.random() * 3);
           const pickupType = Math.random() < 0.52 ? 'magnet' : 'turbo';
           entities.push({ type: pickupType, lane: bonusLane, y: y, hit: false });
           const obsLane = (bonusLane + 1) % 3;
           entities.push({ type: 'obstacle', lane: obsLane, y: y, hit: false });
         } else {
-          // RARE Shield Orb (~1.2% chance) + 2 Red Laser Barriers
           const shieldLane = Math.floor(Math.random() * 3);
           entities.push({ type: 'shield', lane: shieldLane, y: y, hit: false });
           for (let l = 0; l < 3; l++) {
@@ -1410,7 +1348,7 @@
           }
         }
       }
-
+ 
       function addBurst(x, y, color, count = 14) {
         for (let i = 0; i < count; i++) {
           const angle = Math.random() * Math.PI * 2;
@@ -1426,7 +1364,7 @@
           });
         }
       }
-
+ 
       function addFloatingText(x, y, text, color) {
         floatingTexts.push({
           x: x,
@@ -1437,7 +1375,7 @@
           maxLife: 0.7
         });
       }
-
+ 
       function triggerGameOver(mpResult = null) {
         stopBackgroundMusic();
         if (mpResult === 'WIN') {
@@ -1449,7 +1387,7 @@
         gameState = 'GAMEOVER';
         saveState.gamesPlayed += 1;
         hudMpOpponent.classList.add('hidden');
-
+ 
         if (isMultiplayerMatch && !mpMatchEnded && mpResult !== 'WIN') {
           mpMatchEnded = true;
           if (window.NeonCloud && mpRoomCode) {
@@ -1459,7 +1397,7 @@
         if (window.NeonCloud) {
           window.NeonCloud.stopListeningRoom();
         }
-
+ 
         const finalScore = Math.floor(score);
         let isNewRecord = false;
         if (finalScore > saveState.highScore) {
@@ -1468,7 +1406,7 @@
         }
         writeSave();
         updateUIStats();
-
+ 
         if (!isMultiplayerMatch && saveState.gamesPlayed % 3 === 0 && !watchedRewardedThisRun) {
           playSimulatedAd('INTERSTITIAL', () => {
             showGameOverModal(finalScore, isNewRecord, mpResult);
@@ -1477,12 +1415,12 @@
           showGameOverModal(finalScore, isNewRecord, mpResult);
         }
       }
-
+ 
       function showGameOverModal(finalScore, isNewRecord, mpResult = null) {
         const iconEmoji = document.getElementById('go-icon-emoji');
         const titleHeading = document.getElementById('go-title-heading');
         const subtitleDesc = document.getElementById('go-subtitle-desc');
-
+ 
         if (isMultiplayerMatch) {
           if (mpResult === 'WIN') {
             iconEmoji.textContent = '🏆';
@@ -1501,7 +1439,7 @@
           titleHeading.className = 'text-2xl font-black text-rose-400 tracking-tight mb-1';
           subtitleDesc.textContent = 'A red laser barrier stopped your run!';
         }
-
+ 
         document.getElementById('go-score').textContent = finalScore;
         const showcase = document.getElementById('go-crowns-showcase');
         if (showcase) {
@@ -1521,26 +1459,26 @@
         document.getElementById('go-high-score').textContent = saveState.highScore;
         document.getElementById('go-coins-earned').textContent = '+' + sessionCoins;
         document.getElementById('go-triple-amount').textContent = '+' + (sessionCoins * 2) + ' bonus';
-
+ 
         const recBadge = document.getElementById('go-new-record-badge');
         if (isNewRecord) recBadge.classList.remove('hidden');
         else recBadge.classList.add('hidden');
-
-        // No revive in 1v1 Multiplayer (first to die loses immediately!)
+ 
+        // No revive in 1v1 Multiplayer
         const btnRevive = document.getElementById('btn-ad-revive');
         if (revivedThisRun || isMultiplayerMatch) btnRevive.classList.add('hidden');
         else btnRevive.classList.remove('hidden');
-
+ 
         const btnTriple = document.getElementById('btn-ad-triple');
         if (tripledThisRun || sessionCoins === 0) btnTriple.classList.add('hidden');
         else btnTriple.classList.remove('hidden');
-
+ 
         overlayGameover.classList.remove('hidden');
       }
-
+ 
       function playSimulatedAd(adType, onComplete) {
         stopBackgroundMusic();
-
+ 
         const nativeAdMob = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
         if (nativeAdMob) {
           const isRewarded = adType === 'REWARDED';
@@ -1558,21 +1496,21 @@
             });
           return;
         }
-
+ 
         previousStateBeforeAd = gameState;
         gameState = 'AD';
         overlayAdPlayer.classList.remove('hidden');
-
+ 
         const badge = document.getElementById('ad-badge-type');
         const countdownPill = document.getElementById('ad-countdown-pill');
         const progressBar = document.getElementById('ad-progress-bar');
         const statusText = document.getElementById('ad-status-text');
         const btnCloseAd = document.getElementById('btn-close-ad');
-
+ 
         const isRewarded = adType === 'REWARDED';
         const totalSeconds = isRewarded ? 4 : 3;
         let remaining = totalSeconds;
-
+ 
         if (isRewarded) {
           badge.textContent = '🎬 REWARDED VIDEO';
           badge.className = 'px-2 py-0.5 rounded bg-amber-400 text-slate-950 font-black text-[10px]';
@@ -1582,19 +1520,19 @@
           badge.className = 'px-2 py-0.5 rounded bg-indigo-400 text-slate-950 font-black text-[10px]';
           statusText.textContent = 'Game resumes in a moment...';
         }
-
+ 
         btnCloseAd.disabled = true;
         btnCloseAd.className = 'w-full py-3 rounded-xl bg-slate-800 text-slate-500 font-black text-xs transition cursor-not-allowed';
         btnCloseAd.textContent = 'Wait ' + remaining + 's...';
         countdownPill.textContent = remaining + 's';
         progressBar.style.width = '0%';
-
+ 
         if (adIntervalId) clearInterval(adIntervalId);
         adIntervalId = setInterval(() => {
           remaining -= 1;
           const pct = Math.min(100, Math.round(((totalSeconds - remaining) / totalSeconds) * 100));
           progressBar.style.width = pct + '%';
-
+ 
           if (remaining > 0) {
             countdownPill.textContent = remaining + 's';
             btnCloseAd.textContent = 'Wait ' + remaining + 's...';
@@ -1610,7 +1548,7 @@
             if (isRewarded) watchedRewardedThisRun = true;
           }
         }, 1000);
-
+ 
         btnCloseAd.onclick = () => {
           if (btnCloseAd.disabled) return;
           overlayAdPlayer.classList.add('hidden');
@@ -1618,12 +1556,12 @@
           if (typeof onComplete === 'function') onComplete();
         };
       }
-
+ 
       function updateGame(dt) {
         const w = canvas.width;
         const h = canvas.height;
         const playerY = getPlayerY();
-
+ 
         playerX += (targetX - playerX) * Math.min(1, dt * 16);
         if (isMultiplayerMatch) {
           const oppTargetX = getLaneCenterX(mpOpponentLane);
@@ -1634,8 +1572,7 @@
             window.NeonCloud.syncPlayerState(mpRoomCode, mpIsHost, currentLane, score);
           }
         }
-
-        // Faster and progressively accelerating speed while keeping long intervals between Bosses
+ 
         if (selectedGameMode === 'BOSS_10') {
           speed = Math.min(440, speed + dt * 2.4);
         } else {
@@ -1645,12 +1582,12 @@
         const mult = (1 + (saveState.scoreMultLevel - 1) * 0.2) * (turboBoostRemaining > 0 ? 2 : 1);
         score += dt * (effectiveSpeed * 0.08) * combo * mult;
         hudScore.textContent = Math.floor(score);
-
+ 
         if (Math.floor(score) > saveState.highScore) {
           saveState.highScore = Math.floor(score);
           writeSave();
         }
-
+ 
         runProgressPoints += dt * 11.5;
         if (mtStage < MT_THRESHOLDS.length && runProgressPoints >= MT_THRESHOLDS[mtStage]) {
           mtStage += 1;
@@ -1686,7 +1623,7 @@
           updateUIStats();
         }
         updateCrownBarUI();
-
+ 
         if (selectedGameMode === 'BOSS_10' && !activeBoss && bossLevel < 10) {
           if (bossCooldownTimer > 0) {
             bossCooldownTimer = Math.max(0, bossCooldownTimer - dt);
@@ -1695,7 +1632,7 @@
             spawnBoss();
           }
         }
-
+ 
         if (activeBoss) {
           autoLaserTimer -= dt;
           const fireInterval = Math.max(0.065, 0.12 - (saveState.laserLevel - 1) * 0.014);
@@ -1706,11 +1643,11 @@
         } else if (lasers.length > 0) {
           lasers = [];
         }
-
+ 
         if (shieldRemaining > 0) shieldRemaining = Math.max(0, shieldRemaining - dt);
         if (magnetBoostRemaining > 0) magnetBoostRemaining = Math.max(0, magnetBoostRemaining - dt);
         if (turboBoostRemaining > 0) turboBoostRemaining = Math.max(0, turboBoostRemaining - dt);
-
+ 
         if (turboBoostRemaining > 0) {
           hudPowerupBar.classList.remove('hidden');
           hudPowerupLabel.textContent = '⚡ HYPER-TURBO x2 ACTIVE!';
@@ -1726,7 +1663,7 @@
         } else {
           hudPowerupBar.classList.add('hidden');
         }
-
+ 
         for (let i = 0; i < stars.length; i++) {
           stars[i].y += effectiveSpeed * stars[i].speedFactor * dt;
           if (stars[i].y > h) {
@@ -1734,24 +1671,24 @@
             stars[i].x = Math.random() * w;
           }
         }
-
+ 
         if (activeBoss) {
           if (activeBoss.y < activeBoss.targetY) {
             activeBoss.y = Math.min(activeBoss.targetY, activeBoss.y + 150 * dt);
           }
           const bossTargetX = getLaneCenterX(activeBoss.lane);
           activeBoss.x += (bossTargetX - activeBoss.x) * Math.min(1, dt * 8);
-
+ 
           if (activeBoss.flashTimer > 0) {
             activeBoss.flashTimer = Math.max(0, activeBoss.flashTimer - dt);
           }
-
+ 
           activeBoss.moveTimer -= dt;
           if (activeBoss.moveTimer <= 0) {
             activeBoss.lane = Math.floor(Math.random() * 3);
             activeBoss.moveTimer = Math.max(0.55, 1.1 - bossLevel * 0.06);
           }
-
+ 
           activeBoss.fireTimer -= dt;
           if (activeBoss.fireTimer <= 0) {
             activeBoss.salvoCount = (activeBoss.salvoCount || 0) + 1;
@@ -1810,13 +1747,13 @@
             }
           }
         }
-
+ 
         for (let i = lasers.length - 1; i >= 0; i--) {
           const l = lasers[i];
           if (!l) continue;
           l.y -= 720 * dt;
           let removed = false;
-
+ 
           if (activeBoss && Math.abs(l.x - activeBoss.x) < 42 && Math.abs(l.y - activeBoss.y) < 34) {
             activeBoss.hp -= l.dmg;
             activeBoss.flashTimer = 0.09;
@@ -1825,11 +1762,11 @@
             addBurst(l.x, l.y, '#38bdf8', 5);
             sfxLaserHit();
             removed = true;
-
+ 
             const hpPct = Math.max(0, Math.round((activeBoss.hp / activeBoss.maxHp) * 100));
             hudBossHpText.textContent = '⚡ AUTO-LASER • ' + hpPct + '%';
             hudBossHpFill.style.width = hpPct + '%';
-
+ 
             if (activeBoss.hp <= 0) {
               addBurst(activeBoss.x, activeBoss.y, '#f43f5e', 34);
               addBurst(activeBoss.x, activeBoss.y, '#fbbf24', 26);
@@ -1842,7 +1779,7 @@
               activeBoss = null;
               lasers = [];
               hudBossBar.classList.add('hidden');
-
+ 
               if (bossLevel >= 10) {
                 modeVictoryAchieved = true;
                 saveState.coins += 1000;
@@ -1861,12 +1798,12 @@
               break;
             }
           }
-
+ 
           if (removed || l.y < -20) {
             lasers.splice(i, 1);
           }
         }
-
+ 
         spawnTimer -= dt;
         if (spawnTimer <= 0) {
           spawnWave();
@@ -1876,16 +1813,16 @@
             spawnTimer = Math.max(0.46, 1.08 - (effectiveSpeed - 235) / 420);
           }
         }
-
+ 
         const magnetRadius = magnetBoostRemaining > 0
           ? w * 0.9
           : 28 + (saveState.magnetLevel - 1) * 26;
-
+ 
         for (let i = entities.length - 1; i >= 0; i--) {
           const e = entities[i];
           e.y += (e.bossShot ? effectiveSpeed * 1.15 : effectiveSpeed) * dt;
           const ex = e.customX !== undefined ? e.customX : getLaneCenterX(e.lane);
-
+ 
           if (e.type === 'coin' && !e.hit) {
             const dx = playerX - ex;
             const dy = playerY - e.y;
@@ -1894,11 +1831,11 @@
               e.customX = ex + dx * dt * (magnetBoostRemaining > 0 ? 11 : 8);
             }
           }
-
+ 
           const curX = e.customX !== undefined ? e.customX : getLaneCenterX(e.lane);
           const distX = Math.abs(curX - playerX);
           const distY = Math.abs(e.y - playerY);
-
+ 
           if (!e.hit && distX < 28 && distY < 28) {
             if (e.type === 'coin') {
               e.hit = true;
@@ -1958,12 +1895,12 @@
               }
             }
           }
-
+ 
           if (e.y > h + 60 || e.hit) {
             entities.splice(i, 1);
           }
         }
-
+ 
         for (let i = particles.length - 1; i >= 0; i--) {
           const p = particles[i];
           p.x += p.vx * dt;
@@ -1971,36 +1908,36 @@
           p.life -= dt;
           if (p.life <= 0) particles.splice(i, 1);
         }
-
+ 
         for (let i = floatingTexts.length - 1; i >= 0; i--) {
           const ft = floatingTexts[i];
           ft.y -= 50 * dt;
           ft.life -= dt;
           if (ft.life <= 0) floatingTexts.splice(i, 1);
         }
-
+ 
         if (screenShake > 0) {
           screenShake = Math.max(0, screenShake - dt * 30);
         }
       }
-
+ 
       function drawScene() {
         const w = canvas.width;
         const h = canvas.height;
         const playerY = getPlayerY();
-
+ 
         ctx.save();
         if (screenShake > 0) {
           ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
         }
-
+ 
         const grad = ctx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, '#090d16');
         grad.addColorStop(0.5, '#111827');
         grad.addColorStop(1, '#1e1b4b');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
-
+ 
         ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
         for (let i = 0; i < stars.length; i++) {
           const s = stars[i];
@@ -2008,11 +1945,11 @@
           ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
           ctx.fill();
         }
-
+ 
         const margin = w * 0.16;
         const usable = w - margin * 2;
         const laneWidth = usable / laneCount;
-
+ 
         ctx.strokeStyle = 'rgba(99, 102, 241, 0.25)';
         ctx.lineWidth = 2;
         for (let i = 0; i <= laneCount; i++) {
@@ -2022,7 +1959,7 @@
           ctx.lineTo(lx, h);
           ctx.stroke();
         }
-
+ 
         for (let i = 0; i < lasers.length; i++) {
           const l = lasers[i];
           ctx.save();
@@ -2034,11 +1971,11 @@
           ctx.fill();
           ctx.restore();
         }
-
+ 
         for (let i = 0; i < entities.length; i++) {
           const e = entities[i];
           const ex = e.customX !== undefined ? e.customX : getLaneCenterX(e.lane);
-
+ 
           if (e.type === 'coin') {
             ctx.save();
             ctx.fillStyle = '#fbbf24';
@@ -2098,7 +2035,6 @@
             ctx.restore();
           } else if (e.type === 'shield') {
             ctx.save();
-            // Glowing Shield Orb + Vector Shield Emblem Logo
             ctx.fillStyle = 'rgba(79, 70, 229, 0.35)';
             ctx.shadowColor = '#6366f1';
             ctx.shadowBlur = 16;
@@ -2108,8 +2044,7 @@
             ctx.strokeStyle = '#a5b4fc';
             ctx.lineWidth = 2;
             ctx.stroke();
-
-            // Inner Shield Crest Logo
+ 
             ctx.fillStyle = '#38bdf8';
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 1.8;
@@ -2126,7 +2061,6 @@
             ctx.restore();
           } else if (e.type === 'magnet') {
             ctx.save();
-            // Glowing Magnet Orb + U-Shaped Magnet Logo
             ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
             ctx.shadowColor = '#10b981';
             ctx.shadowBlur = 16;
@@ -2136,8 +2070,7 @@
             ctx.strokeStyle = '#6ee7b7';
             ctx.lineWidth = 2;
             ctx.stroke();
-
-            // U-Magnet Icon (Red arch + silver tips)
+ 
             ctx.strokeStyle = '#f43f5e';
             ctx.lineWidth = 3.5;
             ctx.lineCap = 'butt';
@@ -2147,14 +2080,13 @@
             ctx.moveTo(ex - 6, e.y + 1);
             ctx.lineTo(ex - 6, e.y + 7);
             ctx.stroke();
-
+ 
             ctx.fillStyle = '#e2e8f0';
             ctx.fillRect(ex - 7.8, e.y + 5, 3.6, 3.2);
             ctx.fillRect(ex + 4.2, e.y + 5, 3.6, 3.2);
             ctx.restore();
           } else if (e.type === 'turbo') {
             ctx.save();
-            // Glowing Turbo Orb + Lightning Bolt Logo
             ctx.fillStyle = 'rgba(234, 179, 8, 0.32)';
             ctx.shadowColor = '#eab308';
             ctx.shadowBlur = 18;
@@ -2164,8 +2096,7 @@
             ctx.strokeStyle = '#fef08a';
             ctx.lineWidth = 2;
             ctx.stroke();
-
-            // Lightning Bolt Logo
+ 
             ctx.fillStyle = '#fde047';
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 1.2;
@@ -2182,14 +2113,14 @@
             ctx.restore();
           }
         }
-
+ 
         if (activeBoss) {
           ctx.save();
           ctx.translate(activeBoss.x, activeBoss.y);
           ctx.fillStyle = activeBoss.flashTimer > 0 ? '#ffffff' : (activeBoss.hullColor || '#e11d48');
           ctx.shadowColor = activeBoss.glowColor || '#f43f5e';
           ctx.shadowBlur = 22;
-
+ 
           ctx.beginPath();
           if (activeBoss.pattern === 'double') {
             ctx.moveTo(0, 24);
@@ -2213,21 +2144,21 @@
           }
           ctx.closePath();
           ctx.fill();
-
+ 
           ctx.fillStyle = activeBoss.coreColor || '#fde047';
           ctx.beginPath();
           ctx.arc(0, 0, 9.5, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }
-
-        // Draw Opponent Ghost Spaceship in 1v1 Online Mode
+ 
+        // Opponent ghost spaceship in 1v1 Online Mode
         if (isMultiplayerMatch && gameState === 'PLAYING') {
           const oppSkin = SKINS.find(s => s.id === mpOpponentSkin) || SKINS[1];
           ctx.save();
           ctx.translate(mpOpponentX || getLaneCenterX(mpOpponentLane), playerY - 36);
           ctx.globalAlpha = 0.58;
-
+ 
           ctx.fillStyle = oppSkin.color;
           ctx.shadowColor = oppSkin.glow;
           ctx.shadowBlur = 14;
@@ -2238,7 +2169,7 @@
           ctx.lineTo(-16, 14);
           ctx.closePath();
           ctx.fill();
-
+ 
           ctx.globalAlpha = 0.92;
           ctx.font = 'bold 10px Inter, sans-serif';
           ctx.textAlign = 'center';
@@ -2246,11 +2177,11 @@
           ctx.fillText('⚔️ ' + mpOpponentName, 0, -24);
           ctx.restore();
         }
-
+ 
         const skin = SKINS.find(s => s.id === saveState.selectedSkin) || SKINS[0];
         ctx.save();
         ctx.translate(playerX, playerY);
-
+ 
         if (shieldRemaining > 0 || turboBoostRemaining > 0) {
           ctx.beginPath();
           ctx.arc(0, 0, 29, 0, Math.PI * 2);
@@ -2260,7 +2191,7 @@
           ctx.strokeStyle = turboBoostRemaining > 0 ? '#fde047' : '#818cf8';
           ctx.stroke();
         }
-
+ 
         ctx.fillStyle = turboBoostRemaining > 0 ? '#38bdf8' : '#f97316';
         ctx.beginPath();
         ctx.moveTo(-7, 16);
@@ -2268,7 +2199,7 @@
         ctx.lineTo(7, 16);
         ctx.closePath();
         ctx.fill();
-
+ 
         ctx.fillStyle = skin.color;
         ctx.shadowColor = skin.glow;
         ctx.shadowBlur = 16;
@@ -2279,7 +2210,7 @@
         ctx.lineTo(-18, 16);
         ctx.closePath();
         ctx.fill();
-
+ 
         ctx.fillStyle = '#f8fafc';
         ctx.beginPath();
         ctx.moveTo(0, -8);
@@ -2288,7 +2219,7 @@
         ctx.closePath();
         ctx.fill();
         ctx.restore();
-
+ 
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i];
           ctx.save();
@@ -2299,7 +2230,7 @@
           ctx.fill();
           ctx.restore();
         }
-
+ 
         for (let i = 0; i < floatingTexts.length; i++) {
           const ft = floatingTexts[i];
           ctx.save();
@@ -2310,40 +2241,40 @@
           ctx.fillText(ft.text, ft.x, ft.y);
           ctx.restore();
         }
-
+ 
         ctx.restore();
       }
-
+ 
       function loop(now) {
         const dt = Math.min(0.05, Math.max(0.001, (now - lastFrameTime) / 1000));
         lastFrameTime = now;
-
+ 
         if (gameState === 'PLAYING') {
           updateGame(dt);
         }
         drawScene();
-
+ 
         animFrameId = requestAnimationFrame(loop);
       }
-
+ 
       function startLoop() {
         if (animFrameId) cancelAnimationFrame(animFrameId);
         lastFrameTime = performance.now();
         animFrameId = requestAnimationFrame(loop);
       }
-
+ 
       function renderShop() {
         const skinsContainer = document.getElementById('shop-skins-list');
         skinsContainer.innerHTML = '';
-
+ 
         SKINS.forEach(skin => {
           const unlocked = saveState.unlockedSkins.includes(skin.id);
           const selected = saveState.selectedSkin === skin.id;
-
+ 
           const card = document.createElement('div');
           card.className = 'p-2.5 rounded-xl border flex flex-col justify-between gap-2 ' +
             (selected ? 'bg-indigo-950/80 border-indigo-400' : 'bg-slate-900 border-slate-800');
-
+ 
           const top = document.createElement('div');
           top.className = 'flex items-center gap-2';
           const swatch = document.createElement('span');
@@ -2354,7 +2285,7 @@
           title.textContent = skin.name;
           top.appendChild(swatch);
           top.appendChild(title);
-
+ 
           const btn = document.createElement('button');
           btn.type = 'button';
           if (selected) {
@@ -2367,7 +2298,7 @@
             btn.className = 'w-full py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-300 font-bold text-[11px]';
             btn.textContent = skin.cost + ' coins';
           }
-
+ 
           btn.addEventListener('click', () => {
             if (unlocked) {
               saveState.selectedSkin = skin.id;
@@ -2390,15 +2321,15 @@
               showToast('Not enough coins! Tap +50 Free Coins.');
             }
           });
-
+ 
           card.appendChild(top);
           card.appendChild(btn);
           skinsContainer.appendChild(card);
         });
-
+ 
         const upgContainer = document.getElementById('shop-upgrades-list');
         upgContainer.innerHTML = '';
-
+ 
         const upgrades = [
           {
             key: 'laserLevel',
@@ -2422,14 +2353,14 @@
             cost: saveState.scoreMultLevel * 75
           }
         ];
-
+ 
         upgrades.forEach(u => {
           const row = document.createElement('div');
           row.className = 'p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2';
-
+ 
           const info = document.createElement('div');
           info.innerHTML = `<div class="text-xs font-bold text-white">${u.title} (Lv. ${u.level})</div><div class="text-[10px] text-slate-400">${u.desc}</div>`;
-
+ 
           const btn = document.createElement('button');
           btn.type = 'button';
           if (u.level >= 5) {
@@ -2453,43 +2384,43 @@
               }
             });
           }
-
+ 
           row.appendChild(info);
           row.appendChild(btn);
           upgContainer.appendChild(row);
         });
       }
-
+ 
       function renderMissions() {
         const container = document.getElementById('missions-list-container');
         if (!container) return;
         container.innerHTML = '';
         updateUIStats();
-
+ 
         saveState.missions.forEach((m) => {
           const isDone = m.progress >= m.target;
           const pct = Math.min(100, Math.round((m.progress / m.target) * 100));
-
+ 
           const card = document.createElement('div');
           card.className = 'p-3.5 rounded-2xl border flex flex-col gap-2.5 ' +
             (isDone ? 'bg-emerald-950/50 border-emerald-400/70 shadow-lg' : 'bg-slate-900/90 border-slate-800');
-
+ 
           const topRow = document.createElement('div');
           topRow.className = 'flex items-center justify-between gap-2';
-
+ 
           const leftInfo = document.createElement('div');
           leftInfo.className = 'flex items-center gap-2.5';
           leftInfo.innerHTML = `<div class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-lg shrink-0">${m.icon}</div>` +
             `<div><div class="text-xs font-black text-white">${m.title} <span class="text-[10px] text-cyan-300 font-bold">(Tier ${m.tier})</span></div>` +
             `<div class="text-[11px] text-slate-300">${m.desc}</div></div>`;
-
+ 
           const rewardBadge = document.createElement('div');
           rewardBadge.className = 'px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-300 font-black text-xs shrink-0';
           rewardBadge.textContent = '+' + m.reward + ' c.';
-
+ 
           topRow.appendChild(leftInfo);
           topRow.appendChild(rewardBadge);
-
+ 
           const progRow = document.createElement('div');
           progRow.className = 'space-y-1';
           progRow.innerHTML = `<div class="flex items-center justify-between text-[11px] font-bold">` +
@@ -2497,10 +2428,10 @@
             `<span class="${isDone ? 'text-emerald-300' : 'text-cyan-300'} font-mono">${m.progress} / ${m.target}</span></div>` +
             `<div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">` +
             `<div class="h-full ${isDone ? 'bg-gradient-to-r from-emerald-400 to-lime-400' : 'bg-gradient-to-r from-cyan-400 to-indigo-500'} transition-all duration-300" style="width: ${pct}%;"></div></div>`;
-
+ 
           card.appendChild(topRow);
           card.appendChild(progRow);
-
+ 
           if (isDone) {
             const claimBtn = document.createElement('button');
             claimBtn.type = 'button';
@@ -2532,11 +2463,11 @@
             });
             card.appendChild(claimBtn);
           }
-
+ 
           container.appendChild(card);
         });
       }
-
+ 
       const WHEEL_PRIZES = [
         { label: '+30 Coins', coins: 30, color: '#3b82f6' },
         { label: '+75 Coins', coins: 75, color: '#8b5cf6' },
@@ -2545,12 +2476,12 @@
         { label: 'JACKPOT +200', coins: 200, color: '#f59e0b' },
         { label: '+40 Coins', coins: 40, color: '#ec4899' }
       ];
-
+ 
       let wheelAngle = 0;
       let wheelSpinning = false;
       const wheelCanvas = document.getElementById('wheel-canvas');
       const wheelCtx = wheelCanvas.getContext('2d');
-
+ 
       function drawFortuneWheel() {
         const cw = wheelCanvas.width;
         const ch = wheelCanvas.height;
@@ -2558,9 +2489,9 @@
         const cy = ch / 2;
         const radius = cx - 4;
         const arc = (Math.PI * 2) / WHEEL_PRIZES.length;
-
+ 
         wheelCtx.clearRect(0, 0, cw, ch);
-
+ 
         for (let i = 0; i < WHEEL_PRIZES.length; i++) {
           const startAng = wheelAngle + i * arc;
           const endAng = startAng + arc;
@@ -2573,7 +2504,7 @@
           wheelCtx.lineWidth = 2;
           wheelCtx.strokeStyle = '#0f172a';
           wheelCtx.stroke();
-
+ 
           wheelCtx.save();
           wheelCtx.translate(cx, cy);
           wheelCtx.rotate(startAng + arc / 2);
@@ -2584,7 +2515,7 @@
           wheelCtx.fillText(WHEEL_PRIZES[i].label, radius - 10, 0);
           wheelCtx.restore();
         }
-
+ 
         wheelCtx.beginPath();
         wheelCtx.arc(cx, cy, 18, 0, Math.PI * 2);
         wheelCtx.fillStyle = '#0f172a';
@@ -2593,7 +2524,7 @@
         wheelCtx.strokeStyle = '#fbbf24';
         wheelCtx.stroke();
       }
-
+ 
       function updateWheelButtons() {
         updateUIStats();
         const btnFree = document.getElementById('btn-spin-free');
@@ -2612,33 +2543,33 @@
           statusEl.className = 'text-[11px] text-amber-300 font-bold';
         }
       }
-
+ 
       function triggerWheelSpin() {
         if (wheelSpinning) return;
         wheelSpinning = true;
         const resultLabel = document.getElementById('wheel-result-label');
         resultLabel.textContent = 'Spinning... Good luck!';
-
+ 
         const startAngle = wheelAngle;
         const extraSpins = (Math.PI * 2) * (5 + Math.random() * 3);
         const duration = 3000;
         const startTime = performance.now();
         let lastTickSlice = -1;
         const arc = (Math.PI * 2) / WHEEL_PRIZES.length;
-
+ 
         function animateWheel(now) {
           const elapsed = now - startTime;
           const t = Math.min(1, elapsed / duration);
           const easeOut = 1 - Math.pow(1 - t, 3);
           wheelAngle = startAngle + extraSpins * easeOut;
           drawFortuneWheel();
-
+ 
           const currentSlice = Math.floor((wheelAngle % (Math.PI * 2)) / arc);
           if (currentSlice !== lastTickSlice) {
             lastTickSlice = currentSlice;
             sfxMove();
           }
-
+ 
           if (t < 1) {
             requestAnimationFrame(animateWheel);
           } else {
@@ -2646,7 +2577,7 @@
             const pointerAngle = (Math.PI * 1.5 - (wheelAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
             const winIndex = Math.floor(pointerAngle / arc) % WHEEL_PRIZES.length;
             const prize = WHEEL_PRIZES[winIndex];
-
+ 
             saveState.coins += prize.coins;
             resultLabel.textContent = '🎉 WON: ' + prize.label + '!';
             showToast('🎡 Lucky Wheel: ' + prize.label + ' added!');
@@ -2657,11 +2588,11 @@
         }
         requestAnimationFrame(animateWheel);
       }
-
+ 
       const btnModeBoss = document.getElementById('btn-mode-boss');
       const btnModeFree = document.getElementById('btn-mode-free');
       const modeDescBanner = document.getElementById('mode-desc-banner');
-
+ 
       function selectMode(mode) {
         selectedGameMode = mode;
         sfxMove();
@@ -2677,13 +2608,13 @@
           modeDescBanner.className = 'w-64 text-[11px] text-amber-300 font-semibold mb-3 bg-rose-950/60 border border-rose-500/30 rounded-xl py-1.5 px-2.5';
         }
       }
-
+ 
       btnModeBoss.addEventListener('click', () => selectMode('BOSS_10'));
       btnModeFree.addEventListener('click', () => selectMode('FREE_SKILL'));
-
+ 
       document.getElementById('btn-start-game').addEventListener('click', () => startNewGame(false));
       document.getElementById('btn-play-again').addEventListener('click', () => startNewGame(false));
-
+ 
       // --- USERNAME CREATION & EDIT HANDLERS ---
       function saveUsernameFromModal() {
         const inp = document.getElementById('input-username');
@@ -2699,7 +2630,7 @@
         overlayUsername.classList.add('hidden');
         showToast('👨‍🚀 Welcome, Pilot ' + cleaned + '!');
       }
-
+ 
       document.getElementById('btn-save-username').addEventListener('click', saveUsernameFromModal);
       document.getElementById('input-username').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') saveUsernameFromModal();
@@ -2710,7 +2641,7 @@
         overlayUsername.classList.remove('hidden');
         if (inp) inp.focus();
       });
-
+ 
       // --- 1v1 ONLINE MULTIPLAYER LOBBY HANDLERS ---
       function generateRoomCode() {
         const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -2720,12 +2651,12 @@
         }
         return code;
       }
-
+ 
       function attachRoomListener(code) {
         if (!window.NeonCloud) return;
         window.NeonCloud.listenRoom(code, (room) => {
           if (!room) return;
-
+ 
           if (mpIsHost) {
             mpOpponentName = room.guestName || 'Friend';
             mpOpponentSkin = room.guestSkin || 'solar';
@@ -2737,11 +2668,11 @@
             mpOpponentLane = typeof room.hostLane === 'number' ? room.hostLane : 1;
             mpOpponentScore = room.hostScore || 0;
           }
-
+ 
           if (hudMpOpponentText && isMultiplayerMatch) {
             hudMpOpponentText.textContent = '⚔️ VS ' + mpOpponentName + ' • ' + mpOpponentScore + ' pts';
           }
-
+ 
           // Start the Free Mode 1v1 duel as soon as both players are in the room
           if (room.status === 'playing' && gameState !== 'PLAYING' && !mpMatchEnded) {
             sfxReward();
@@ -2749,8 +2680,8 @@
             startNewGame(true);
             return;
           }
-
-          // First player to crash loses -> survivor wins immediately!
+ 
+          // First player to crash loses -> survivor wins immediately
           if (room.status === 'finished' && gameState === 'PLAYING' && !mpMatchEnded) {
             const opponentCrashed = mpIsHost ? (room.guestAlive === false) : (room.hostAlive === false);
             if (opponentCrashed) {
@@ -2764,7 +2695,7 @@
           }
         });
       }
-
+ 
       document.getElementById('btn-open-multiplayer').addEventListener('click', () => {
         if (!saveState.username || saveState.username.length < 2) {
           checkFirstTimeUsernamePrompt();
@@ -2777,7 +2708,7 @@
         overlayMultiplayer.classList.remove('hidden');
         gameState = 'MULTIPLAYER';
       });
-
+ 
       document.getElementById('btn-close-multiplayer').addEventListener('click', () => {
         sfxMove();
         if (window.NeonCloud) window.NeonCloud.stopListeningRoom();
@@ -2785,10 +2716,10 @@
         overlayMenu.classList.remove('hidden');
         gameState = 'MENU';
       });
-
+ 
       document.getElementById('btn-create-room').addEventListener('click', async () => {
         if (!window.NeonCloud || !window.NeonCloud.ready) {
-          showToast('Connecting to online server... try again in a second!');
+          showToast('Online library not loaded. Check your connection and reload!');
           return;
         }
         const code = generateRoomCode();
@@ -2805,7 +2736,7 @@
           showToast('Could not create room: ' + err.message);
         }
       });
-
+ 
       document.getElementById('btn-copy-room-code').addEventListener('click', () => {
         if (!mpRoomCode) return;
         const tempInput = document.createElement('textarea');
@@ -2818,10 +2749,10 @@
         } catch (e) {}
         document.body.removeChild(tempInput);
       });
-
+ 
       document.getElementById('btn-join-room').addEventListener('click', async () => {
         if (!window.NeonCloud || !window.NeonCloud.ready) {
-          showToast('Connecting to online server... try again in a second!');
+          showToast('Online library not loaded. Check your connection and reload!');
           return;
         }
         const inp = document.getElementById('input-join-code');
@@ -2844,7 +2775,7 @@
           showToast('❌ ' + (err.message || 'Room not found'));
         }
       });
-
+ 
       document.getElementById('btn-pause-game').addEventListener('click', () => {
         if (gameState === 'PLAYING') {
           gameState = 'PAUSED';
@@ -2852,7 +2783,7 @@
           overlayPause.classList.remove('hidden');
         }
       });
-
+ 
       document.getElementById('btn-resume-game').addEventListener('click', () => {
         if (gameState === 'PAUSED') {
           gameState = 'PLAYING';
@@ -2861,15 +2792,17 @@
           startLoop();
         }
       });
-
+ 
       document.getElementById('btn-quit-to-menu').addEventListener('click', () => {
         gameState = 'MENU';
         stopBackgroundMusic();
+        if (window.NeonCloud) window.NeonCloud.stopListeningRoom();
+        hudMpOpponent.classList.add('hidden');
         overlayPause.classList.add('hidden');
         overlayMenu.classList.remove('hidden');
         drawScene();
       });
-
+ 
       document.getElementById('btn-go-menu').addEventListener('click', () => {
         gameState = 'MENU';
         stopBackgroundMusic();
@@ -2877,23 +2810,22 @@
         overlayMenu.classList.remove('hidden');
         drawScene();
       });
-
-      // Settings Modal Logic (from Home Menu gear icon or Pause menu)
+ 
       function openSettingsModal() {
         sfxMove();
         overlaySettings.classList.remove('hidden');
       }
-
+ 
       function closeSettingsModal() {
         sfxMove();
         overlaySettings.classList.add('hidden');
       }
-
+ 
       document.getElementById('btn-menu-settings').addEventListener('click', openSettingsModal);
       document.getElementById('btn-pause-settings').addEventListener('click', openSettingsModal);
       document.getElementById('btn-close-settings').addEventListener('click', closeSettingsModal);
       document.getElementById('btn-apply-settings').addEventListener('click', closeSettingsModal);
-
+ 
       let returnToGameOverFromMissions = false;
       document.getElementById('btn-open-missions').addEventListener('click', () => {
         sfxMove();
@@ -2903,7 +2835,7 @@
         overlayMissions.classList.remove('hidden');
         gameState = 'MISSIONS';
       });
-
+ 
       document.getElementById('btn-go-missions').addEventListener('click', () => {
         sfxMove();
         returnToGameOverFromMissions = true;
@@ -2912,7 +2844,7 @@
         overlayMissions.classList.remove('hidden');
         gameState = 'MISSIONS';
       });
-
+ 
       document.getElementById('btn-close-missions').addEventListener('click', () => {
         sfxMove();
         overlayMissions.classList.add('hidden');
@@ -2924,7 +2856,7 @@
           gameState = 'MENU';
         }
       });
-
+ 
       document.getElementById('btn-open-wheel').addEventListener('click', () => {
         sfxMove();
         drawFortuneWheel();
@@ -2933,7 +2865,7 @@
         overlayWheel.classList.remove('hidden');
         gameState = 'WHEEL';
       });
-
+ 
       document.getElementById('btn-close-wheel').addEventListener('click', () => {
         if (wheelSpinning) return;
         sfxMove();
@@ -2941,7 +2873,7 @@
         overlayMenu.classList.remove('hidden');
         gameState = 'MENU';
       });
-
+ 
       document.getElementById('btn-spin-free').addEventListener('click', () => {
         if (wheelSpinning || !saveState.freeSpinAvailable) return;
         saveState.freeSpinAvailable = false;
@@ -2949,14 +2881,14 @@
         updateWheelButtons();
         triggerWheelSpin();
       });
-
+ 
       document.getElementById('btn-spin-ad').addEventListener('click', () => {
         if (wheelSpinning) return;
         playSimulatedAd('REWARDED', () => {
           triggerWheelSpin();
         });
       });
-
+ 
       document.getElementById('btn-open-shop').addEventListener('click', () => {
         sfxMove();
         renderShop();
@@ -2964,14 +2896,14 @@
         overlayShop.classList.remove('hidden');
         gameState = 'SHOP';
       });
-
+ 
       document.getElementById('btn-close-shop').addEventListener('click', () => {
         sfxMove();
         overlayShop.classList.add('hidden');
         overlayMenu.classList.remove('hidden');
         gameState = 'MENU';
       });
-
+ 
       document.getElementById('btn-menu-free-coins').addEventListener('click', () => {
         playSimulatedAd('REWARDED', () => {
           saveState.coins += 50;
@@ -2980,7 +2912,7 @@
           showToast('🎉 +50 coins added!');
         });
       });
-
+ 
       document.getElementById('btn-shop-watch-ad').addEventListener('click', () => {
         playSimulatedAd('REWARDED', () => {
           saveState.coins += 50;
@@ -2990,7 +2922,7 @@
           showToast('🎉 +50 coins added!');
         });
       });
-
+ 
       document.getElementById('btn-ad-revive').addEventListener('click', () => {
         if (revivedThisRun) return;
         playSimulatedAd('REWARDED', () => {
@@ -3004,7 +2936,7 @@
           startLoop();
         });
       });
-
+ 
       document.getElementById('btn-ad-triple').addEventListener('click', () => {
         if (tripledThisRun || sessionCoins <= 0) return;
         playSimulatedAd('REWARDED', () => {
@@ -3019,9 +2951,9 @@
           showToast('🎉 Run coins tripled!');
         });
       });
-
+ 
       document.getElementById('btn-use-boost').addEventListener('click', activateCoinShield);
-
+ 
       window.addEventListener('keydown', (e) => {
         if (gameState !== 'PLAYING') return;
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || e.key === 'q' || e.key === 'Q') {
@@ -3032,17 +2964,17 @@
           activateCoinShield();
         }
       });
-
+ 
       let touchStartX = null;
       let lastTouchTimestamp = 0;
-
+ 
       canvas.addEventListener('touchstart', (e) => {
         lastTouchTimestamp = performance.now();
         if (e.touches && e.touches.length > 0) {
           touchStartX = e.touches[0].clientX;
         }
       }, { passive: true });
-
+ 
       canvas.addEventListener('touchend', (e) => {
         lastTouchTimestamp = performance.now();
         if (touchStartX === null || gameState !== 'PLAYING') return;
@@ -3058,7 +2990,7 @@
         }
         touchStartX = null;
       }, { passive: false });
-
+ 
       canvas.addEventListener('mousedown', (e) => {
         if (performance.now() - lastTouchTimestamp < 600) return;
         if (gameState !== 'PLAYING') return;
@@ -3066,7 +2998,7 @@
         const clickX = e.clientX - rect.left;
         moveLane(clickX < rect.width / 2 ? -1 : 1);
       });
-
+ 
       document.getElementById('btn-toggle-music').addEventListener('click', () => {
         musicEnabled = !musicEnabled;
         const statusEl = document.getElementById('settings-music-status');
@@ -3081,7 +3013,7 @@
         }
         showToast(musicEnabled ? '🎵 Music ON' : '🎵 Music OFF');
       });
-
+ 
       document.getElementById('btn-mute-audio').addEventListener('click', () => {
         soundMuted = !soundMuted;
         const statusEl = document.getElementById('settings-sfx-status');
@@ -3092,7 +3024,7 @@
         if (!soundMuted) sfxCoin();
         showToast(soundMuted ? '🔇 Sound Effects OFF' : '🔊 Sound Effects ON');
       });
-
+ 
       window.addEventListener('resize', resizeCanvas);
       window.addEventListener('beforeunload', writeSave);
       document.addEventListener('visibilitychange', () => {
@@ -3107,3 +3039,5 @@
   </script>
 </body>
 </html>
+ 
+Claude a terminé sa réponse.
