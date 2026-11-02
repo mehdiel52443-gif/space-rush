@@ -1,10 +1,8 @@
-
-Index · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>Neon Sky Rush — Space Arcade</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,12 +36,39 @@ Index · HTML
     .btn-rewarded {
       animation: pulseGlow 1.8s infinite ease-in-out;
     }
+  
+    html, body { width: 100%; height: 100%; min-height: 0; overflow: hidden; }
+    body { height: 100vh; height: 100dvh; min-height: 0; padding: 0; }
+    .game-layout { width: 100%; height: 100%; min-height: 0; }
+    .phone-frame { width: 100%; max-width: none; height: 100%; min-height: 0; border: 0; border-radius: 0; box-shadow: none; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    .phone-frame > .relative, .phone-frame > #canvas-wrapper { min-height: 0; }
+    #canvas-wrapper { min-height: 0; flex: 1 1 0%; }
+    button { -webkit-tap-highlight-color: transparent; }
+    #overlay-menu { overflow-y: auto; }
+    #overlay-menu > * { flex-shrink: 0; }
+    #canvas-wrapper > [id^="overlay-"] > div { max-width: min(100%, 600px); margin-left: auto; margin-right: auto; }
+    #overlay-shop > div, #overlay-missions > div, #overlay-wheel > div, #overlay-multiplayer > div { width: 100%; }
+    @media (min-width: 900px) {
+      #canvas-wrapper > [id^="overlay-"] > div { zoom: var(--menu-scale, 1); }
+      #canvas-wrapper > [id^="overlay-"] { overflow-y: auto; }
+    }
+    #overlay-menu > div:first-child { width: min(100%, 600px); }
+    #overlay-menu > div:last-child { max-width: 600px; }
+    #overlay-menu > .my-auto { width: min(100%, 520px); padding: 16px 0; }
+    @media (min-width: 900px) {
+      #overlay-menu .w-64 { width: min(100%, 360px); }
+      #overlay-menu h2 { font-size: clamp(2rem, 4vw, 3rem); }
+      #overlay-menu p { max-width: 420px; }
+    }
+      #overlay-ad-player { align-items: center; justify-content: center; gap: 18px; overflow-y: auto; }
+    #overlay-ad-player > div { width: min(100%, 440px); flex-shrink: 0; }
+    #overlay-ad-player > .my-auto { margin-top: 0; margin-bottom: 0; }
   </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4">
+<body class="flex flex-col items-center justify-center">
  
-  <main class="w-full flex items-center justify-center">
-    <div class="relative w-full max-w-[400px] h-[720px] sm:h-[760px] rounded-[36px] phone-frame bg-slate-950 overflow-hidden flex flex-col shrink-0">
+  <main class="game-layout w-full flex items-center justify-center">
+    <div class="relative phone-frame bg-slate-950 overflow-hidden flex flex-col shrink-0">
  
       <!-- In-Game Top HUD -->
       <div class="relative z-10 flex items-center justify-between px-4 pt-3 pb-2 bg-gradient-to-b from-slate-950/90 to-transparent pointer-events-none">
@@ -58,15 +83,12 @@ Index · HTML
         </div>
  
         <div class="flex items-center gap-1.5 pointer-events-auto">
-          <button id="btn-use-boost" type="button" class="px-2.5 py-1.5 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 border border-indigo-400/60 text-white font-black text-[11px] transition shadow" title="Activate Shield (25 coins)">
-            🛡️ Shield (25c)
-          </button>
           <div class="bg-amber-950/90 border border-amber-400/50 rounded-xl px-2.5 py-1 flex items-center gap-1.5 shadow">
             <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"></span>
             <span id="hud-coins" class="text-sm font-black text-amber-300 tabular-nums">0</span>
           </div>
           <button id="btn-pause-game" type="button" class="w-8 h-8 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-white font-black text-xs flex items-center justify-center transition" title="Pause">
-            II
+            ⚙️
           </button>
         </div>
       </div>
@@ -91,7 +113,7 @@ Index · HTML
       <!-- Boss Health Bar Banner -->
       <div id="hud-boss-bar" class="hidden relative z-10 mx-4 mb-1 px-3 py-1.5 rounded-xl bg-rose-950/95 border border-rose-500/70 shadow-lg pointer-events-none">
         <div class="flex items-center justify-between text-[11px] font-black text-rose-200 mb-1">
-          <span id="hud-boss-name">👾 BOSS OMEGA CRUISER</span>
+          <span class="flex items-center gap-2 min-w-0"><svg viewBox="0 0 32 32" width="24" height="24" aria-label="Boss" class="shrink-0"><path fill="#fb7185" d="M3 8 10 12 16 3 22 12 29 8 26 25 6 25Z"/><path fill="#fde047" d="M10 16h4v4h-4zm8 0h4v4h-4z"/></svg><span id="hud-boss-name">BOSS OMEGA CRUISER</span></span>
           <span id="hud-boss-hp-text" class="font-mono text-rose-300">⚡ AUTO-LASER • 100%</span>
         </div>
         <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-rose-500/40">
@@ -115,9 +137,6 @@ Index · HTML
             <span>🏆 Best: <strong id="menu-high-score" class="text-amber-400 font-black">0</strong></span>
             <span>👑 Crowns: <strong id="menu-best-crowns" class="text-pink-400 font-black">0</strong></span>
             <span>🎮 Runs: <strong id="menu-games-played" class="text-cyan-400 font-black">0</strong></span>
-            <button id="btn-menu-settings" type="button" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white flex items-center justify-center text-sm shadow transition" title="Settings">
-              ⚙️
-            </button>
           </div>
  
           <div class="my-auto flex flex-col items-center">
@@ -148,7 +167,7 @@ Index · HTML
             </button>
  
             <button id="btn-open-multiplayer" type="button" class="w-64 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:opacity-95 text-slate-950 font-black text-xs shadow-lg transition transform active:scale-95 mb-2.5 flex items-center justify-center gap-1.5">
-              <span>⚔️ 1v1 ONLINE (PLAY WITH FRIENDS)</span>
+              <span>⚔️ ONLINE (2–4 PLAYERS)</span>
             </button>
  
             <div class="grid grid-cols-2 gap-2 w-64">
@@ -180,7 +199,7 @@ Index · HTML
             <div class="text-4xl">👨‍🚀</div>
             <h3 class="text-lg font-black text-white tracking-tight">CHOOSE YOUR USERNAME</h3>
             <p class="text-xs text-slate-300 leading-relaxed">
-              Create your pilot username to save your progress and challenge your friends in 1v1 Online Mode!
+              Create your pilot username to save your progress and challenge your friends in Online Mode!
             </p>
             <input id="input-username" type="text" maxlength="14" placeholder="Ex: StarPilot99" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-indigo-500/60 text-white font-bold text-sm text-center focus:outline-none focus:border-cyan-400" />
             <button id="btn-save-username" type="button" class="w-full py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:opacity-95 text-white font-black text-sm shadow-lg transition">
@@ -193,8 +212,8 @@ Index · HTML
         <div id="overlay-multiplayer" class="hidden absolute inset-0 z-30 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-4 text-center">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 text-left">
             <div>
-              <h3 class="text-base font-black text-white">⚔️ 1v1 ONLINE DUEL</h3>
-              <p class="text-[11px] text-slate-400">Free Mode survival: first to crash loses!</p>
+              <h3 class="text-base font-black text-white">⚔️ ONLINE SURVIVAL</h3>
+              <p class="text-[11px] text-slate-400">2–4 players • Last ship alive wins!</p>
             </div>
             <button id="btn-close-multiplayer" type="button" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700">
               Close
@@ -203,8 +222,10 @@ Index · HTML
  
           <div class="my-auto flex flex-col gap-3 py-2">
             <div class="bg-slate-900/90 border border-emerald-500/40 rounded-2xl p-3.5 flex flex-col gap-2">
-              <div class="text-xs font-black text-emerald-300 uppercase tracking-wider">1. Invite a Friend</div>
-              <p class="text-[11px] text-slate-300">Create a room and share the 5-letter code with your friend:</p>
+              <div class="text-xs font-black text-emerald-300 uppercase tracking-wider">1. Invite Friends</div>
+              <p class="text-[11px] text-slate-300">Choose the room size, then share the code with your friends:</p>
+              <label class="text-xs text-slate-300" for="mp-room-size">Players (including you)</label>
+              <select id="mp-room-size" class="rounded-lg bg-slate-800 text-white p-2"><option value="2">2 players</option><option value="3">3 players</option><option value="4">4 players</option></select>
               <button id="btn-create-room" type="button" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow transition">
                 ➕ CREATE ROOM CODE
               </button>
@@ -246,7 +267,23 @@ Index · HTML
           <span id="hud-mp-opponent-text" class="text-[11px] font-black text-emerald-200">VS Friend: ALIVE</span>
         </div>
  
-        <!-- SETTINGS MODAL OVERLAY -->
+  
+      <div id="overlay-rematch" role="dialog" aria-modal="true" aria-label="Play again" class="hidden absolute inset-0 z-[75] bg-slate-950/95 flex flex-col items-center justify-center p-5 text-center">
+        <div style="width:min(100%,360px)" class="rounded-2xl border border-cyan-400/40 bg-slate-900 p-5">
+          <h3 class="text-xl font-black text-white">PLAY AGAIN?</h3>
+          <p id="rematch-status" aria-live="polite" class="text-sm text-cyan-200 my-3"></p>
+          <ul id="rematch-players" class="text-sm text-slate-200 space-y-2 mb-4"></ul>
+          <button id="btn-rematch-ready" class="w-full rounded-xl bg-indigo-600 text-white font-bold py-3 mb-2">Play Again</button>
+          <button id="btn-rematch-cancel" class="w-full rounded-xl bg-slate-800 text-white font-bold py-3">Cancel</button>
+        </div>
+      </div>
+      <div id="overlay-online-countdown" class="hidden absolute inset-0 z-[70] bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-center">
+        <div class="text-xs uppercase tracking-[0.35em] font-black text-cyan-300 mb-4">Online match</div>
+        <div id="online-countdown-number" class="text-8xl sm:text-9xl font-black text-white drop-shadow-[0_0_28px_rgba(34,211,238,.8)]">5</div>
+        <div class="text-sm uppercase tracking-[0.25em] font-black text-slate-300 mt-4">Get ready!</div>
+        <button id="btn-cancel-countdown" class="mt-6 px-5 py-2 rounded-xl bg-slate-800 text-white">Cancel</button>
+      </div>
+      <!-- SETTINGS MODAL OVERLAY -->
         <div id="overlay-settings" class="hidden absolute inset-0 z-30 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
           <div class="w-full max-w-[290px] bg-slate-900 border border-indigo-500/40 rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
@@ -323,6 +360,7 @@ Index · HTML
               <span>🎬 TRIPLE MY COINS (<span id="go-triple-amount">+0</span>)</span>
             </button>
  
+            <p id="go-online-status" aria-live="polite" class="text-xs text-cyan-200 mb-3"></p>
             <div class="flex items-center gap-2 w-full">
               <button id="btn-play-again" type="button" class="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm transition shadow">
                 🔄 Play Again
@@ -465,160 +503,7 @@ Index · HTML
  
   <!-- ONLINE 1v1 (PeerJS / WebRTC) — no account or API key needed -->
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
-  <script>
-    const PEER_PREFIX = 'neonskyrush-';
- 
-    window.NeonCloud = {
-      ready: typeof Peer !== 'undefined',
-      peer: null,
-      conn: null,
-      room: null,
-      onUpdate: null,
-      isHost: false,
- 
-      async init() {},
-      async saveProfile() {},
-      async loadProfile() { return null; },
- 
-      _emit() {
-        if (this.onUpdate && this.room) this.onUpdate(Object.assign({}, this.room));
-      },
- 
-      _onData(msg) {
-        if (!this.room || !msg) return;
-        if (msg.t === 'state') {
-          if (this.isHost) { this.room.guestLane = msg.lane; this.room.guestScore = msg.score; }
-          else { this.room.hostLane = msg.lane; this.room.hostScore = msg.score; }
-          this._emit();
-        } else if (msg.t === 'crash') {
-          if (this.isHost) this.room.guestAlive = false;
-          else this.room.hostAlive = false;
-          this.room.status = 'finished';
-          this._emit();
-        }
-      },
- 
-      // If the opponent disconnects mid-match, they count as crashed
-      _onClose() {
-        if (!this.room || this.room.status !== 'playing') return;
-        if (this.isHost) this.room.guestAlive = false;
-        else this.room.hostAlive = false;
-        this.room.status = 'finished';
-        this._emit();
-      },
- 
-      createRoom(roomCode, hostUsername, hostSkin) {
-        this.stopListeningRoom();
-        return new Promise((resolve, reject) => {
-          if (!this.ready) return reject(new Error('PeerJS not loaded'));
-          this.isHost = true;
-          this.room = {
-            roomCode, status: 'waiting',
-            hostName: hostUsername, hostSkin: hostSkin || 'cyber', hostLane: 1, hostScore: 0, hostAlive: true,
-            guestName: '', guestSkin: 'solar', guestLane: 1, guestScore: 0, guestAlive: true
-          };
-          const peer = new Peer(PEER_PREFIX + roomCode);
-          this.peer = peer;
-          let opened = false;
-          const timer = setTimeout(() => { if (!opened) reject(new Error('Server timeout, retry')); }, 10000);
- 
-          peer.on('open', () => { opened = true; clearTimeout(timer); resolve(Object.assign({}, this.room)); });
-          peer.on('error', (err) => {
-            if (!opened) { clearTimeout(timer); reject(new Error(err.type === 'unavailable-id' ? 'Code already used, retry' : 'Connection error: ' + err.type)); }
-          });
-          peer.on('connection', (conn) => {
-            if (this.conn && this.room && this.room.status !== 'waiting') {
-              conn.on('open', () => { conn.send({ t: 'full' }); setTimeout(() => conn.close(), 300); });
-              return;
-            }
-            this.conn = conn;
-            conn.on('data', (msg) => {
-              if (msg && msg.t === 'hello' && this.room) {
-                this.room.guestName = msg.name || 'Friend';
-                this.room.guestSkin = msg.skin || 'solar';
-                this.room.status = 'playing';
-                conn.send({ t: 'start', hostName: this.room.hostName, hostSkin: this.room.hostSkin });
-                this._emit();
-              } else {
-                this._onData(msg);
-              }
-            });
-            conn.on('close', () => this._onClose());
-          });
-        });
-      },
- 
-      joinRoom(roomCode, guestUsername, guestSkin) {
-        this.stopListeningRoom();
-        return new Promise((resolve, reject) => {
-          if (!this.ready) return reject(new Error('PeerJS not loaded'));
-          this.isHost = false;
-          const peer = new Peer();
-          this.peer = peer;
-          let done = false;
-          const fail = (m) => {
-            if (done) return;
-            done = true; clearTimeout(timer);
-            try { peer.destroy(); } catch (e) {}
-            this.peer = null; this.conn = null;
-            reject(new Error(m));
-          };
-          const timer = setTimeout(() => fail('Room not found or no response'), 10000);
- 
-          peer.on('error', (err) => fail(err.type === 'peer-unavailable' ? 'Room code not found!' : 'Connection error: ' + err.type));
-          peer.on('open', () => {
-            const conn = peer.connect(PEER_PREFIX + roomCode, { reliable: true });
-            this.conn = conn;
-            conn.on('open', () => conn.send({ t: 'hello', name: guestUsername, skin: guestSkin }));
-            conn.on('data', (msg) => {
-              if (!msg) return;
-              if (msg.t === 'start' && !done) {
-                done = true; clearTimeout(timer);
-                this.room = {
-                  roomCode, status: 'playing',
-                  hostName: msg.hostName, hostSkin: msg.hostSkin, hostLane: 1, hostScore: 0, hostAlive: true,
-                  guestName: guestUsername, guestSkin: guestSkin, guestLane: 1, guestScore: 0, guestAlive: true
-                };
-                resolve(Object.assign({}, this.room));
-              } else if (msg.t === 'full') {
-                fail('This match has already started!');
-              } else {
-                this._onData(msg);
-              }
-            });
-            conn.on('close', () => this._onClose());
-          });
-        });
-      },
- 
-      listenRoom(roomCode, onUpdate) {
-        this.onUpdate = onUpdate;
-      },
- 
-      async syncPlayerState(roomCode, isHost, lane, score) {
-        try {
-          if (this.conn && this.conn.open) this.conn.send({ t: 'state', lane: lane, score: Math.floor(score) });
-        } catch (e) {}
-      },
- 
-      async reportCrash() {
-        try {
-          if (this.conn && this.conn.open) this.conn.send({ t: 'crash' });
-        } catch (e) {}
-      },
- 
-      stopListeningRoom() {
-        this.onUpdate = null;
-        const p = this.peer, c = this.conn;
-        this.peer = null; this.conn = null; this.room = null;
-        // small delay so the "crash" message is sent before closing
-        setTimeout(() => {
-          try { if (c) c.close(); } catch (e) {}
-          try { if (p) p.destroy(); } catch (e) {}
-        }, 1500);
-      }
-    };
-  </script>
+  <script src="./neon-online.js"></script>
  
   <script>
     (function() {
@@ -689,8 +574,8 @@ Index · HTML
       writeSave();
  
       let audioCtx = null;
-      let soundMuted = false;
-      let musicEnabled = true;
+      let soundMuted = saveState.soundMuted === true;
+      let musicEnabled = saveState.musicEnabled !== false;
       let bgmTimerId = null;
       let bgmStep = 0;
  
@@ -946,6 +831,9 @@ Index · HTML
  
       // --- 1v1 ONLINE MULTIPLAYER STATE ---
       let isMultiplayerMatch = false;
+      let onlineCountdownRemaining = 0;
+      let onlineCountdownTimer = null;
+      let pendingMultiplayerStart = false;
       let mpRoomCode = '';
       let mpIsHost = false;
       let mpOpponentName = 'Opponent';
@@ -954,6 +842,9 @@ Index · HTML
       let mpOpponentX = 0;
       let mpOpponentScore = 0;
       let mpMatchEnded = false;
+      let mpRoundId = 0;
+      let mpWinnerRewarded = false;
+      let mpOpponents = [];
       let mpSyncTimer = 0;
  
       let toastTimeout = null;
@@ -1009,7 +900,7 @@ Index · HTML
       let lastFrameTime = 0;
  
       function getPlayerY() {
-        return canvas.height - 135;
+        return sceneHeight - 135;
       }
  
       function initStars(w, h) {
@@ -1024,11 +915,20 @@ Index · HTML
         }
       }
  
+      let sceneWidth = 380, sceneHeight = 580;
       function resizeCanvas() {
         const rect = wrapper.getBoundingClientRect();
-        canvas.width = Math.max(280, Math.floor(rect.width || wrapper.clientWidth || 380));
-        canvas.height = Math.max(400, Math.floor(rect.height || wrapper.clientHeight || 580));
-        if (stars.length === 0) initStars(canvas.width, canvas.height);
+        // Keep the same vertical field of view and scale every game object equally.
+        const displayWidth = rect.width || 380;
+        const displayHeight = rect.height || 580;
+        wrapper.style.setProperty('--menu-scale', String(Math.max(1, Math.min(1.45, displayWidth / 850, displayHeight / 560))));
+        sceneHeight = 580;
+        sceneWidth = Math.max(1, Math.round(580 * displayWidth / displayHeight));
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(displayWidth * pixelRatio);
+        canvas.height = Math.round(displayHeight * pixelRatio);
+        ctx.setTransform(canvas.width / sceneWidth, 0, 0, canvas.height / sceneHeight, 0, 0);
+        initStars(sceneWidth, sceneHeight);
         targetX = getLaneCenterX(currentLane);
         if (gameState !== 'PLAYING') {
           playerX = targetX;
@@ -1037,9 +937,9 @@ Index · HTML
       }
  
       function getLaneCenterX(laneIndex) {
-        const w = canvas.width || 380;
-        const margin = w * 0.16;
-        const usable = w - margin * 2;
+        const w = sceneWidth || 380;
+        const usable = Math.min(w * 0.68, 258.4);
+        const margin = (w - usable) / 2;
         const laneWidth = usable / laneCount;
         return margin + laneWidth * (laneIndex + 0.5);
       }
@@ -1108,7 +1008,7 @@ Index · HTML
           const pct = Math.min(100, (runProgressPoints / cap) * 100);
           fillEl.style.width = pct.toFixed(1) + '%';
           fillEl.className = 'h-full bg-gradient-to-r from-cyan-400 via-amber-300 to-amber-500 transition-all duration-150';
-          const modeTag = isMultiplayerMatch ? '⚔️ 1v1 FREE • ' : (selectedGameMode === 'BOSS_10' ? ('BOSS ' + bossLevel + '/10 • ') : 'FREE MODE • ');
+          const modeTag = isMultiplayerMatch ? '⚔️ ONLINE FREE • ' : (selectedGameMode === 'BOSS_10' ? ('BOSS ' + bossLevel + '/10 • ') : 'FREE MODE • ');
           phaseLabel.textContent = modeTag + 'STARS (' + mtStage + '/3)';
           phaseLabel.className = 'text-amber-300 tracking-wide';
  
@@ -1127,7 +1027,7 @@ Index · HTML
             : Math.min(100, Math.max(0, ((runProgressPoints - base) / (cap - base)) * 100));
           fillEl.style.width = pct.toFixed(1) + '%';
           fillEl.className = 'h-full bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-400 transition-all duration-150';
-          const modeTag = isMultiplayerMatch ? '⚔️ 1v1 FREE • ' : (selectedGameMode === 'BOSS_10' ? ('BOSS ' + bossLevel + '/10 • ') : 'FREE MODE • ');
+          const modeTag = isMultiplayerMatch ? '⚔️ ONLINE FREE • ' : (selectedGameMode === 'BOSS_10' ? ('BOSS ' + bossLevel + '/10 • ') : 'FREE MODE • ');
           phaseLabel.textContent = modeTag + 'CROWNS (' + crownsEarned + '/3)';
           phaseLabel.className = 'text-pink-300 tracking-wide';
  
@@ -1140,10 +1040,41 @@ Index · HTML
         }
       }
  
+      function clearOnlineCountdown() {
+        if (onlineCountdownTimer) clearInterval(onlineCountdownTimer);
+        onlineCountdownTimer = null; pendingMultiplayerStart = false;
+        document.getElementById('overlay-online-countdown').classList.add('hidden');
+      }
+      function finishOnlineCountdown() {
+        const cloud = window.NeonCloud;
+        if (!pendingMultiplayerStart || !cloud.room || cloud.room.round !== mpRoundId || cloud.room.status !== 'playing') return;
+        clearOnlineCountdown(); gameState = 'PLAYING';
+        startBackgroundMusic(); lastFrameTime = performance.now(); startLoop();
+      }
+      function startOnlineCountdown() {
+        clearOnlineCountdown(); pendingMultiplayerStart = true; gameState = 'COUNTDOWN';
+        document.getElementById('overlay-online-countdown').classList.remove('hidden');
+        const tick = () => {
+          const cloud = window.NeonCloud, room = cloud.room;
+          if (!room || room.round !== mpRoundId || !['countdown', 'playing'].includes(room.status)) { clearOnlineCountdown(); return; }
+          onlineCountdownRemaining = Math.max(0, Math.ceil((room.startAt - cloud.serverNow()) / 1000));
+          document.getElementById('online-countdown-number').textContent = onlineCountdownRemaining || 'GO!';
+          if (!onlineCountdownRemaining) finishOnlineCountdown();
+        };
+        tick(); if (pendingMultiplayerStart) onlineCountdownTimer = setInterval(tick, 50);
+        drawScene();
+      }
+
       function startNewGame(startAsMultiplayer = false) {
         ensureAudio();
+        document.getElementById('overlay-rematch').classList.add('hidden');
         isMultiplayerMatch = Boolean(startAsMultiplayer);
         mpMatchEnded = false;
+        mpWinnerRewarded = false;
+        overlayGameover.inert = false;
+        document.getElementById('btn-go-missions').classList.remove('hidden');
+        document.getElementById('btn-play-again').disabled = false;
+        document.getElementById('btn-play-again').style.opacity = '1';
         mpSyncTimer = 0;
         if (isMultiplayerMatch) {
           // 1v1 Online always runs in FREE_SKILL Mode (no Bosses, first to crash loses!)
@@ -1156,7 +1087,7 @@ Index · HTML
           hudMpOpponent.classList.add('hidden');
         }
  
-        gameState = 'PLAYING';
+        gameState = startAsMultiplayer ? 'COUNTDOWN' : 'PLAYING';
         currentLane = 1;
         targetX = getLaneCenterX(1);
         playerX = targetX;
@@ -1200,16 +1131,16 @@ Index · HTML
         hudPowerupBar.classList.add('hidden');
         hudBossBar.classList.add('hidden');
  
-        startBackgroundMusic();
         lastFrameTime = performance.now();
-        startLoop();
+        if (isMultiplayerMatch) startOnlineCountdown();
+        else { startBackgroundMusic(); startLoop(); }
       }
  
       let lastLaneMoveTime = 0;
       function moveLane(delta) {
         if (gameState !== 'PLAYING') return;
         const now = performance.now();
-        if (now - lastLaneMoveTime < 65) return;
+
         lastLaneMoveTime = now;
  
         const step = delta > 0 ? 1 : -1;
@@ -1255,7 +1186,7 @@ Index · HTML
         if (selectedGameMode !== 'BOSS_10' || bossLevel >= 10) return;
         bossLevel += 1;
         const arch = BOSS_ARCHETYPES[Math.min(bossLevel - 1, BOSS_ARCHETYPES.length - 1)];
-        const maxHp = 26 + bossLevel * 10;
+        const maxHp = Math.round((26 + bossLevel * 10) * 0.92);
         activeBoss = {
           x: getLaneCenterX(1),
           y: -50,
@@ -1273,7 +1204,7 @@ Index · HTML
           shotColor: arch.shotColor,
           pattern: arch.pattern
         };
-        hudBossName.textContent = arch.name;
+        hudBossName.textContent = arch.name.slice(arch.name.indexOf('BOSS'));
         hudBossHpText.textContent = '⚡ AUTO-LASER • 100%';
         hudBossHpFill.style.width = '100%';
         hudBossBar.classList.remove('hidden');
@@ -1281,23 +1212,6 @@ Index · HTML
         showToast('⚠️ ' + arch.name + '! Rapid Auto-Laser engaged!');
       }
  
-      function activateCoinShield() {
-        if (gameState !== 'PLAYING') return;
-        if (shieldRemaining > 0) {
-          showToast('Shield already active!');
-          return;
-        }
-        if (saveState.coins < 25) {
-          showToast('Need 25 coins to activate Shield!');
-          return;
-        }
-        saveState.coins -= 25;
-        shieldRemaining = 6.0;
-        sfxShield();
-        writeSave();
-        updateUIStats();
-        showToast('🛡️ Shield activated (6s)!');
-      }
  
       function spawnWave() {
         const pattern = Math.random();
@@ -1394,9 +1308,7 @@ Index · HTML
             window.NeonCloud.reportCrash(mpRoomCode, mpIsHost, saveState.username || 'Pilot', mpOpponentName);
           }
         }
-        if (window.NeonCloud) {
-          window.NeonCloud.stopListeningRoom();
-        }
+        if (!isMultiplayerMatch && window.NeonCloud) window.NeonCloud.stopListeningRoom();
  
         const finalScore = Math.floor(score);
         let isNewRecord = false;
@@ -1474,6 +1386,7 @@ Index · HTML
         else btnTriple.classList.remove('hidden');
  
         overlayGameover.classList.remove('hidden');
+        updateOnlineResult(window.NeonCloud && window.NeonCloud.room);
       }
  
       function playSimulatedAd(adType, onComplete) {
@@ -1558,8 +1471,8 @@ Index · HTML
       }
  
       function updateGame(dt) {
-        const w = canvas.width;
-        const h = canvas.height;
+        const w = sceneWidth;
+        const h = sceneHeight;
         const playerY = getPlayerY();
  
         playerX += (targetX - playerX) * Math.min(1, dt * 16);
@@ -1707,7 +1620,7 @@ Index · HTML
                   });
                 }
               }
-              activeBoss.fireTimer = Math.max(0.75, 1.25 - bossLevel * 0.05);
+              activeBoss.fireTimer = Math.max(0.75, 1.25 - bossLevel * 0.05) * 1.10;
             } else if (activeBoss.pattern === 'burst') {
               if (activeBoss.salvoCount % 2 === 0) {
                 [0, 2].forEach(l => {
@@ -1732,7 +1645,7 @@ Index · HTML
                   shotColor: activeBoss.shotColor
                 });
               }
-              activeBoss.fireTimer = Math.max(0.5, 0.9 - bossLevel * 0.04);
+              activeBoss.fireTimer = Math.max(0.5, 0.9 - bossLevel * 0.04) * 1.10;
             } else {
               entities.push({
                 type: 'obstacle',
@@ -1743,7 +1656,7 @@ Index · HTML
                 bossShot: true,
                 shotColor: activeBoss.shotColor
               });
-              activeBoss.fireTimer = Math.max(0.55, 1.05 - bossLevel * 0.06);
+              activeBoss.fireTimer = Math.max(0.55, 1.05 - bossLevel * 0.06) * 1.10;
             }
           }
         }
@@ -1922,8 +1835,8 @@ Index · HTML
       }
  
       function drawScene() {
-        const w = canvas.width;
-        const h = canvas.height;
+        const w = sceneWidth;
+        const h = sceneHeight;
         const playerY = getPlayerY();
  
         ctx.save();
@@ -1946,8 +1859,8 @@ Index · HTML
           ctx.fill();
         }
  
-        const margin = w * 0.16;
-        const usable = w - margin * 2;
+        const usable = Math.min(w * 0.68, 258.4);
+        const margin = (w - usable) / 2;
         const laneWidth = usable / laneCount;
  
         ctx.strokeStyle = 'rgba(99, 102, 241, 0.25)';
@@ -2154,9 +2067,15 @@ Index · HTML
  
         // Opponent ghost spaceship in 1v1 Online Mode
         if (isMultiplayerMatch && gameState === 'PLAYING') {
+          for (const opponent of mpOpponents.filter(p => p.alive && p.connected)) {
+          const mpOpponentSkin = opponent.skin, mpOpponentScore = opponent.score, mpOpponentName = opponent.name, mpOpponentLane = opponent.lane;
+          const mpOpponentX = getLaneCenterX(opponent.lane);
           const oppSkin = SKINS.find(s => s.id === mpOpponentSkin) || SKINS[1];
           ctx.save();
-          ctx.translate(mpOpponentX || getLaneCenterX(mpOpponentLane), playerY - 36);
+          const relativeY = playerY - (mpOpponentScore - score) * 0.65;
+          const offscreen = relativeY < 45 || relativeY > h - 45;
+          const ghostY = Math.max(45, Math.min(h - 45, relativeY));
+          ctx.translate(mpOpponentX || getLaneCenterX(mpOpponentLane), ghostY);
           ctx.globalAlpha = 0.58;
  
           ctx.fillStyle = oppSkin.color;
@@ -2174,8 +2093,9 @@ Index · HTML
           ctx.font = 'bold 10px Inter, sans-serif';
           ctx.textAlign = 'center';
           ctx.fillStyle = '#a7f3d0';
-          ctx.fillText('⚔️ ' + mpOpponentName, 0, -24);
+          ctx.fillText((offscreen ? (relativeY < 45 ? '▲ ' : '▼ ') : '') + mpOpponentName, 0, relativeY > h - 45 ? -24 : 30);
           ctx.restore();
+          }
         }
  
         const skin = SKINS.find(s => s.id === saveState.selectedSkin) || SKINS[0];
@@ -2246,6 +2166,13 @@ Index · HTML
       }
  
       function loop(now) {
+        const topButton = document.getElementById('btn-pause-game');
+        const inMenu = gameState === 'MENU';
+        const label = inMenu ? 'Settings' : 'Pause';
+        if (topButton.title !== label) {
+          topButton.textContent = inMenu ? '⚙️' : 'Ⅱ';
+          topButton.title = label;
+        }
         const dt = Math.min(0.05, Math.max(0.001, (now - lastFrameTime) / 1000));
         lastFrameTime = now;
  
@@ -2613,7 +2540,10 @@ Index · HTML
       btnModeFree.addEventListener('click', () => selectMode('FREE_SKILL'));
  
       document.getElementById('btn-start-game').addEventListener('click', () => startNewGame(false));
-      document.getElementById('btn-play-again').addEventListener('click', () => startNewGame(false));
+      document.getElementById('btn-play-again').addEventListener('click', () => {
+        if (isMultiplayerMatch) window.NeonCloud.requestRematch();
+        else startNewGame(false);
+      });
  
       // --- USERNAME CREATION & EDIT HANDLERS ---
       function saveUsernameFromModal() {
@@ -2652,50 +2582,78 @@ Index · HTML
         return code;
       }
  
+      function updateOnlineResult(room) {
+        const status = document.getElementById('go-online-status');
+        const play = document.getElementById('btn-play-again');
+        if (!isMultiplayerMatch) { status.textContent = ''; play.disabled = false; return; }
+        const me = room && room.players.find(p => p.id === window.NeonCloud.myId);
+        const winner = room && room.players.find(p => p.id === room.winnerId);
+        if (winner && winner.id === window.NeonCloud.myId && !mpWinnerRewarded && room.round === mpRoundId) {
+          mpWinnerRewarded = true;
+          saveState.coins += 150; sessionCoins += 150; writeSave(); updateUIStats();
+          document.getElementById('go-coins-earned').textContent = '+' + sessionCoins;
+        }
+        const finished = room && ['finished', 'rematch'].includes(room.status);
+        const available = finished && room.players.every(p => p.connected);
+        play.disabled = !available; play.style.opacity = available ? '1' : '.5';
+        document.getElementById('btn-go-missions').classList.add('hidden');
+        document.getElementById('btn-ad-triple').classList.add('hidden');
+        if (!room) { status.textContent = 'Room closed. Return to the menu.'; return; }
+        status.textContent = room.notice || (finished ? 'Everyone must choose Play Again for a rematch.' : 'Waiting for the remaining players to finish…');
+        if (gameState === 'GAMEOVER') {
+          const won = winner && winner.id === window.NeonCloud.myId;
+          document.getElementById('go-icon-emoji').textContent = won ? '🏆' : '💥';
+          document.getElementById('go-title-heading').className = 'text-2xl font-black tracking-tight mb-1 ' + (won ? 'text-emerald-400' : 'text-rose-400');
+          document.getElementById('go-title-heading').textContent = won ? 'VICTORY!' : (!finished && room.status !== 'cancelled' ? 'ELIMINATED' : winner ? 'MATCH FINISHED' : 'MATCH CANCELLED');
+          document.getElementById('go-subtitle-desc').textContent = winner ? winner.name + ' wins!' : (room.notice || 'The last ship alive wins.');
+          document.getElementById('go-crowns-showcase').textContent = winner ? (won ? '🏆 WINNER • +150 COINS' : 'WINNER: ' + winner.name) : 'ONLINE SURVIVAL';
+        }
+      }
+      function renderRematch(room) {
+        const overlay = document.getElementById('overlay-rematch');
+        overlayGameover.inert = room.status === 'rematch';
+        if (room.status !== 'rematch') { overlay.classList.add('hidden'); return; }
+        overlay.classList.remove('hidden');
+        const ready = room.players.filter(p => p.ready).length;
+        const waiting = room.players.filter(p => !p.ready).map(p => p.name);
+        document.getElementById('rematch-status').textContent = ready + '/' + room.players.length + ' ready — Waiting for ' + waiting.join(', ');
+        const list = document.getElementById('rematch-players'); list.replaceChildren();
+        room.players.forEach(p => { const item = document.createElement('li'); item.textContent = (p.ready ? '✓ ' : '… ') + p.name + (p.ready ? ' — ready' : ' — waiting'); list.appendChild(item); });
+        const mine = room.players.find(p => p.id === window.NeonCloud.myId);
+        const btn = document.getElementById('btn-rematch-ready');
+        btn.disabled = !!mine?.ready; btn.textContent = mine?.ready ? 'Ready — waiting for friends' : 'Play Again';
+      }
       function attachRoomListener(code) {
-        if (!window.NeonCloud) return;
-        window.NeonCloud.listenRoom(code, (room) => {
-          if (!room) return;
- 
-          if (mpIsHost) {
-            mpOpponentName = room.guestName || 'Friend';
-            mpOpponentSkin = room.guestSkin || 'solar';
-            mpOpponentLane = typeof room.guestLane === 'number' ? room.guestLane : 1;
-            mpOpponentScore = room.guestScore || 0;
-          } else {
-            mpOpponentName = room.hostName || 'Host';
-            mpOpponentSkin = room.hostSkin || 'cyber';
-            mpOpponentLane = typeof room.hostLane === 'number' ? room.hostLane : 1;
-            mpOpponentScore = room.hostScore || 0;
+        window.NeonCloud.listenRoom(code, room => {
+          const cloud = window.NeonCloud;
+          mpOpponents = room.players.filter(p => p.id !== cloud.myId);
+          const opponent = mpOpponents[0];
+          if (opponent) { mpOpponentName = opponent.name; mpOpponentSkin = opponent.skin; mpOpponentLane = opponent.lane; mpOpponentScore = opponent.score; }
+          document.getElementById('mp-room-status-text').textContent = room.players.length + '/' + room.capacity + ' players connected. ' + (room.notice || 'Waiting for everyone…');
+          if (isMultiplayerMatch) hudMpOpponentText.textContent = mpOpponents.map(p => p.name + (p.alive && p.connected ? ': ' + p.score : ': OUT')).join(' • ');
+          if (['countdown', 'playing'].includes(room.status) && room.round !== mpRoundId) {
+            mpRoundId = room.round; startNewGame(true);
           }
- 
-          if (hudMpOpponentText && isMultiplayerMatch) {
-            hudMpOpponentText.textContent = '⚔️ VS ' + mpOpponentName + ' • ' + mpOpponentScore + ' pts';
-          }
- 
-          // Start the Free Mode 1v1 duel as soon as both players are in the room
-          if (room.status === 'playing' && gameState !== 'PLAYING' && !mpMatchEnded) {
-            sfxReward();
-            showToast('⚔️ ' + mpOpponentName + ' connected! Free Mode 1v1 started!');
-            startNewGame(true);
-            return;
-          }
- 
-          // First player to crash loses -> survivor wins immediately
-          if (room.status === 'finished' && gameState === 'PLAYING' && !mpMatchEnded) {
-            const opponentCrashed = mpIsHost ? (room.guestAlive === false) : (room.hostAlive === false);
-            if (opponentCrashed) {
+          if (room.status === 'playing' && pendingMultiplayerStart) finishOnlineCountdown();
+          if (['finished', 'cancelled'].includes(room.status)) {
+            const interrupted = pendingMultiplayerStart;
+            clearOnlineCountdown();
+            if (isMultiplayerMatch && !mpMatchEnded) {
               mpMatchEnded = true;
-              saveState.coins += 150;
-              sessionCoins += 150;
-              writeSave();
-              showToast('🏆 ' + mpOpponentName + ' crashed! YOU WIN +150 coins!');
-              triggerGameOver('WIN');
+              if (room.winnerId === cloud.myId) {
+                triggerGameOver('WIN');
+              } else if (interrupted || room.status === 'cancelled') {
+                stopBackgroundMusic(); gameState = 'GAMEOVER'; showGameOverModal(Math.floor(score), false);
+              } else triggerGameOver('LOSS');
             }
           }
+          renderRematch(room); updateOnlineResult(room);
         });
       }
- 
+      document.getElementById('btn-rematch-ready').addEventListener('click', () => window.NeonCloud.requestRematch());
+      document.getElementById('btn-rematch-cancel').addEventListener('click', () => window.NeonCloud.cancelRematch());
+      document.getElementById('btn-cancel-countdown').addEventListener('click', () => window.NeonCloud.cancelRematch());
+
       document.getElementById('btn-open-multiplayer').addEventListener('click', () => {
         if (!saveState.username || saveState.username.length < 2) {
           checkFirstTimeUsernamePrompt();
@@ -2726,7 +2684,8 @@ Index · HTML
         try {
           mpIsHost = true;
           mpRoomCode = code;
-          await window.NeonCloud.createRoom(code, saveState.username || 'Pilot', saveState.selectedSkin);
+          mpRoundId = 0;
+          await window.NeonCloud.createRoom(code, saveState.username || 'Pilot', saveState.selectedSkin, document.getElementById('mp-room-size').value);
           document.getElementById('mp-room-code-display').textContent = code;
           document.getElementById('mp-created-room-box').classList.remove('hidden');
           attachRoomListener(code);
@@ -2737,16 +2696,24 @@ Index · HTML
         }
       });
  
-      document.getElementById('btn-copy-room-code').addEventListener('click', () => {
-        if (!mpRoomCode) return;
+      document.getElementById('btn-copy-room-code').addEventListener('click', async () => {
+        const code = document.getElementById('mp-room-code-display').textContent.trim();
+        if (!code || code === '-----') return;
+        try {
+          await navigator.clipboard.writeText(code);
+          showToast('📋 Code ' + code + ' copied! Send it to your friend.');
+          return;
+        } catch (e) { /* Use the fallback when clipboard permission is unavailable. */ }
         const tempInput = document.createElement('textarea');
-        tempInput.value = mpRoomCode;
+        tempInput.value = code;
+        tempInput.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
         document.body.appendChild(tempInput);
+        tempInput.focus();
         tempInput.select();
         try {
-          document.execCommand('copy');
-          showToast('📋 Code ' + mpRoomCode + ' copied! Send it to your friend.');
-        } catch (e) {}
+          if (document.execCommand('copy')) showToast('📋 Code ' + code + ' copied! Send it to your friend.');
+          else showToast('Could not copy. Please select the code manually.');
+        } catch (e) { showToast('Could not copy. Please select the code manually.'); }
         document.body.removeChild(tempInput);
       });
  
@@ -2765,12 +2732,12 @@ Index · HTML
           mpIsHost = false;
           mpRoomCode = code;
           const roomData = await window.NeonCloud.joinRoom(code, saveState.username || 'Pilot', saveState.selectedSkin);
-          mpOpponentName = roomData.hostName || 'Host';
-          mpOpponentSkin = roomData.hostSkin || 'cyber';
+          mpRoundId = 0;
+          document.getElementById('mp-room-code-display').textContent = code;
+          document.getElementById('mp-created-room-box').classList.remove('hidden');
           attachRoomListener(code);
           sfxReward();
-          showToast('⚔️ Joined ' + mpOpponentName + '! Starting 1v1 Free Mode!');
-          startNewGame(true);
+          showToast('Room joined. The match starts when everyone is connected.');
         } catch (err) {
           showToast('❌ ' + (err.message || 'Room not found'));
         }
@@ -2781,7 +2748,7 @@ Index · HTML
           gameState = 'PAUSED';
           stopBackgroundMusic();
           overlayPause.classList.remove('hidden');
-        }
+        } else if (gameState === 'MENU') openSettingsModal();
       });
  
       document.getElementById('btn-resume-game').addEventListener('click', () => {
@@ -2804,6 +2771,9 @@ Index · HTML
       });
  
       document.getElementById('btn-go-menu').addEventListener('click', () => {
+        window.NeonCloud.stopListeningRoom();
+        clearOnlineCountdown();
+        document.getElementById('overlay-rematch').classList.add('hidden');
         gameState = 'MENU';
         stopBackgroundMusic();
         overlayGameover.classList.add('hidden');
@@ -2821,7 +2791,6 @@ Index · HTML
         overlaySettings.classList.add('hidden');
       }
  
-      document.getElementById('btn-menu-settings').addEventListener('click', openSettingsModal);
       document.getElementById('btn-pause-settings').addEventListener('click', openSettingsModal);
       document.getElementById('btn-close-settings').addEventListener('click', closeSettingsModal);
       document.getElementById('btn-apply-settings').addEventListener('click', closeSettingsModal);
@@ -2952,7 +2921,6 @@ Index · HTML
         });
       });
  
-      document.getElementById('btn-use-boost').addEventListener('click', activateCoinShield);
  
       window.addEventListener('keydown', (e) => {
         if (gameState !== 'PLAYING') return;
@@ -2960,47 +2928,19 @@ Index · HTML
           moveLane(-1);
         } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
           moveLane(1);
-        } else if (e.key === ' ' || e.key === 'ArrowUp') {
-          activateCoinShield();
         }
       });
  
-      let touchStartX = null;
-      let lastTouchTimestamp = 0;
- 
-      canvas.addEventListener('touchstart', (e) => {
-        lastTouchTimestamp = performance.now();
-        if (e.touches && e.touches.length > 0) {
-          touchStartX = e.touches[0].clientX;
-        }
-      }, { passive: true });
- 
-      canvas.addEventListener('touchend', (e) => {
-        lastTouchTimestamp = performance.now();
-        if (touchStartX === null || gameState !== 'PLAYING') return;
-        if (e.cancelable) e.preventDefault();
-        const endX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : touchStartX;
-        const diff = endX - touchStartX;
-        if (Math.abs(diff) > 28) {
-          moveLane(diff > 0 ? 1 : -1);
-        } else {
-          const rect = canvas.getBoundingClientRect();
-          const tapX = endX - rect.left;
-          moveLane(tapX < rect.width / 2 ? -1 : 1);
-        }
-        touchStartX = null;
-      }, { passive: false });
- 
-      canvas.addEventListener('mousedown', (e) => {
-        if (performance.now() - lastTouchTimestamp < 600) return;
-        if (gameState !== 'PLAYING') return;
+      canvas.addEventListener('pointerdown', (e) => {
+        if (gameState !== 'PLAYING' || !e.isPrimary || e.button !== 0) return;
+        e.preventDefault();
         const rect = canvas.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        moveLane(clickX < rect.width / 2 ? -1 : 1);
+        moveLane(e.clientX - rect.left < rect.width / 2 ? -1 : 1);
       });
- 
+
       document.getElementById('btn-toggle-music').addEventListener('click', () => {
         musicEnabled = !musicEnabled;
+        saveState.musicEnabled = musicEnabled; writeSave();
         const statusEl = document.getElementById('settings-music-status');
         if (statusEl) {
           statusEl.textContent = musicEnabled ? 'ON' : 'OFF';
@@ -3016,6 +2956,7 @@ Index · HTML
  
       document.getElementById('btn-mute-audio').addEventListener('click', () => {
         soundMuted = !soundMuted;
+        saveState.soundMuted = soundMuted; writeSave();
         const statusEl = document.getElementById('settings-sfx-status');
         if (statusEl) {
           statusEl.textContent = soundMuted ? 'OFF' : 'ON';
@@ -3027,6 +2968,8 @@ Index · HTML
  
       window.addEventListener('resize', resizeCanvas);
       window.addEventListener('beforeunload', writeSave);
+      window.addEventListener('pagehide', writeSave);
+      setInterval(writeSave, 5000);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') writeSave();
       });
@@ -3039,5 +2982,3 @@ Index · HTML
   </script>
 </body>
 </html>
- 
-Claude a terminé sa réponse.
