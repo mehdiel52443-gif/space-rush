@@ -162,6 +162,9 @@
               10 Bosses Mode: steady pace that speeds up over time with 10 unique Bosses!
             </div>
  
+            <label class="w-64 flex items-center justify-between text-xs font-bold text-cyan-200 mb-2" for="solo-lanes">TRACK LANES
+              <select id="solo-lanes" class="rounded-lg bg-slate-800 text-white p-2"><option value="3">3 lanes · Classic</option><option value="4">4 lanes</option><option value="5">5 lanes</option></select>
+            </label>
             <button id="btn-start-game" type="button" class="w-64 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-pink-500 hover:opacity-95 text-white font-black text-base shadow-xl transition transform active:scale-95 mb-2">
               ▶ PLAY SOLO
             </button>
@@ -226,6 +229,8 @@
               <p class="text-[11px] text-slate-300">Choose the room size, then share the code with your friends:</p>
               <label class="text-xs text-slate-300" for="mp-room-size">Players (including you)</label>
               <select id="mp-room-size" class="rounded-lg bg-slate-800 text-white p-2"><option value="2">2 players</option><option value="3">3 players</option><option value="4">4 players</option></select>
+              <label class="text-xs text-slate-300" for="mp-lanes">Track lanes (host chooses)</label>
+              <select id="mp-lanes" class="rounded-lg bg-slate-800 text-white p-2"><option value="3">3 lanes · Classic</option><option value="4">4 lanes</option><option value="5">5 lanes</option></select>
               <button id="btn-create-room" type="button" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow transition">
                 ➕ CREATE ROOM CODE
               </button>
@@ -255,9 +260,10 @@
             </div>
           </div>
  
+          <p id="mp-connection-message" role="status" aria-live="polite" class="text-xs text-center text-cyan-200 leading-relaxed">The host must keep this room open while friends join.</p>
           <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
             <span>Pilot: <strong id="mp-pilot-label" class="text-white font-bold">---</strong></span>
-            <span id="mp-cloud-status" class="text-emerald-400 font-semibold">● Online Ready</span>
+            <span id="mp-cloud-status" class="text-emerald-400 font-semibold">● Ready to connect</span>
           </div>
         </div>
  
@@ -503,7 +509,7 @@
  
   <!-- ONLINE 1v1 (PeerJS / WebRTC) — no account or API key needed -->
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
-  <script src="./neon-online.js"></script>
+  <script src="./neon-online.js?v=27"></script>
  
   <script>
     (function() {
@@ -845,6 +851,7 @@
       let mpRoundId = 0;
       let mpWinnerRewarded = false;
       let mpOpponents = [];
+      const mpGhostViews = new Map();
       let mpSyncTimer = 0;
  
       let toastTimeout = null;
@@ -863,7 +870,9 @@
       let gameState = 'MENU';
       let previousStateBeforeAd = 'MENU';
  
-      let laneCount = 3;
+      function validLaneCount(value) { return [3, 4, 5].includes(Number(value)) ? Number(value) : 3; }
+      let soloLaneCount = validLaneCount(saveState.laneCount);
+      let laneCount = soloLaneCount;
       let currentLane = 1;
       let playerX = 0;
       let targetX = 0;
@@ -894,9 +903,31 @@
  
       let entities = [];
       let particles = [];
+      let coinPickups = [];
       let floatingTexts = [];
       let stars = [];
       let spawnTimer = 0;
+      let circuitState = 0, circuitWave = 0, circuitDistance = 0, nextCircuitRow = 130;
+      function resetCircuit(seed) {
+        circuitState = Number(seed) >>> 0;
+        circuitWave = 0; circuitDistance = 0; nextCircuitRow = 130;
+      }
+      function circuitRandom() {
+        if (!isMultiplayerMatch) return Math.random();
+        // Isolated from stars, particles and all player-specific random effects.
+        circuitState = (circuitState + 0x6D2B79F5) >>> 0;
+        let t = circuitState;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      }
+      function advanceCircuit(distance) {
+        while (nextCircuitRow <= circuitDistance + distance) {
+          spawnWave(-40 - (nextCircuitRow - circuitDistance));
+          nextCircuitRow += 240;
+        }
+        circuitDistance += distance;
+      }
       let lastFrameTime = 0;
  
       function getPlayerY() {
@@ -944,6 +975,23 @@
         return margin + laneWidth * (laneIndex + 0.5);
       }
  
+      function canCollectCoin(coin) {
+        if (coin.hit || coin.lane !== currentLane) return false;
+        // Match the visible coin circle against the ship hull (not its glow).
+        const x = getLaneCenterX(coin.lane) - playerX;
+        const y = coin.y - getPlayerY();
+        const hull = [[0, -20], [18, 16], [0, 10], [-18, 16]];
+        let inside = false;
+        for (let i = 0, j = hull.length - 1; i < hull.length; j = i++) {
+          const [ax, ay] = hull[j], [bx, by] = hull[i];
+          if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) inside = !inside;
+          const dx = bx - ax, dy = by - ay;
+          const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)));
+          if ((x - ax - t * dx) ** 2 + (y - ay - t * dy) ** 2 <= 11 ** 2) return true;
+        }
+        return inside;
+      }
+
       function updateUIStats() {
         hudCoins.textContent = saveState.coins;
         document.getElementById('menu-high-score').textContent = saveState.highScore;
@@ -1069,6 +1117,7 @@
         ensureAudio();
         document.getElementById('overlay-rematch').classList.add('hidden');
         isMultiplayerMatch = Boolean(startAsMultiplayer);
+        laneCount = startAsMultiplayer ? validLaneCount(window.NeonCloud.room?.lanes) : soloLaneCount;
         mpMatchEnded = false;
         mpWinnerRewarded = false;
         overlayGameover.inert = false;
@@ -1076,6 +1125,7 @@
         document.getElementById('btn-play-again').disabled = false;
         document.getElementById('btn-play-again').style.opacity = '1';
         mpSyncTimer = 0;
+        mpGhostViews.clear();
         if (isMultiplayerMatch) {
           // 1v1 Online always runs in FREE_SKILL Mode (no Bosses, first to crash loses!)
           selectedGameMode = 'FREE_SKILL';
@@ -1088,8 +1138,8 @@
         }
  
         gameState = startAsMultiplayer ? 'COUNTDOWN' : 'PLAYING';
-        currentLane = 1;
-        targetX = getLaneCenterX(1);
+        currentLane = Math.floor(laneCount / 2);
+        targetX = getLaneCenterX(currentLane);
         playerX = targetX;
         score = 0;
         sessionCoins = 0;
@@ -1105,8 +1155,10 @@
         entities = [];
         lasers = [];
         particles = [];
+        coinPickups = [];
         floatingTexts = [];
         spawnTimer = 0.55;
+        resetCircuit(startAsMultiplayer ? window.NeonCloud.room.mapSeed : 0);
         autoLaserTimer = 0.08;
         nextBossScore = 1200;
         bossCooldownTimer = 36.0;
@@ -1188,10 +1240,10 @@
         const arch = BOSS_ARCHETYPES[Math.min(bossLevel - 1, BOSS_ARCHETYPES.length - 1)];
         const maxHp = Math.round((26 + bossLevel * 10) * 0.92);
         activeBoss = {
-          x: getLaneCenterX(1),
+          x: getLaneCenterX(Math.floor(laneCount / 2)),
           y: -50,
           targetY: 112,
-          lane: 1,
+          lane: Math.floor(laneCount / 2),
           moveTimer: 1.25,
           fireTimer: 1.35,
           salvoCount: 0,
@@ -1213,28 +1265,28 @@
       }
  
  
-      function spawnWave() {
-        const pattern = Math.random();
-        const y = -40;
+      function spawnWave(y = -40) {
+        const pattern = circuitRandom();
+        const waveIndex = circuitWave++;
  
         if (activeBoss) {
-          const coinLane = Math.floor(Math.random() * 3);
+          const coinLane = Math.floor(circuitRandom() * laneCount);
           entities.push({ type: 'coin', lane: coinLane, y: y, hit: false });
           return;
         }
  
-        const isEarlyGame = score < 220;
+        const isEarlyGame = isMultiplayerMatch ? waveIndex < 6 : score < 220;
  
         if (pattern < 0.45 || isEarlyGame) {
-          const obsLane = Math.floor(Math.random() * 3);
+          const obsLane = Math.floor(circuitRandom() * laneCount);
           entities.push({ type: 'obstacle', lane: obsLane, y: y, hit: false });
-          const coinLane = (obsLane + 1 + Math.floor(Math.random() * 2)) % 3;
+          const coinLane = (obsLane + 1 + Math.floor(circuitRandom() * (laneCount - 1))) % laneCount;
           for (let i = 0; i < 3; i++) {
             entities.push({ type: 'coin', lane: coinLane, y: y - i * 44, hit: false });
           }
         } else if (pattern < 0.84) {
-          const safeLane = Math.floor(Math.random() * 3);
-          for (let l = 0; l < 3; l++) {
+          const safeLane = Math.floor(circuitRandom() * laneCount);
+          for (let l = 0; l < laneCount; l++) {
             if (l !== safeLane) {
               entities.push({ type: 'obstacle', lane: l, y: y, hit: false });
             } else {
@@ -1242,20 +1294,20 @@
             }
           }
         } else if (pattern < 0.96) {
-          const gateLane = Math.floor(Math.random() * 3);
+          const gateLane = Math.floor(circuitRandom() * laneCount);
           entities.push({ type: 'gate', lane: gateLane, y: y, hit: false });
-          const obsLane = (gateLane + 1) % 3;
+          const obsLane = (gateLane + 1) % laneCount;
           entities.push({ type: 'obstacle', lane: obsLane, y: y, hit: false });
         } else if (pattern < 0.988) {
-          const bonusLane = Math.floor(Math.random() * 3);
-          const pickupType = Math.random() < 0.52 ? 'magnet' : 'turbo';
+          const bonusLane = Math.floor(circuitRandom() * laneCount);
+          const pickupType = circuitRandom() < 0.52 ? 'shield' : 'turbo';
           entities.push({ type: pickupType, lane: bonusLane, y: y, hit: false });
-          const obsLane = (bonusLane + 1) % 3;
+          const obsLane = (bonusLane + 1) % laneCount;
           entities.push({ type: 'obstacle', lane: obsLane, y: y, hit: false });
         } else {
-          const shieldLane = Math.floor(Math.random() * 3);
+          const shieldLane = Math.floor(circuitRandom() * laneCount);
           entities.push({ type: 'shield', lane: shieldLane, y: y, hit: false });
-          for (let l = 0; l < 3; l++) {
+          for (let l = 0; l < laneCount; l++) {
             if (l !== shieldLane) {
               entities.push({ type: 'obstacle', lane: l, y: y, hit: false });
             }
@@ -1480,7 +1532,7 @@
           const oppTargetX = getLaneCenterX(mpOpponentLane);
           mpOpponentX += (oppTargetX - mpOpponentX) * Math.min(1, dt * 12);
           mpSyncTimer += dt;
-          if (mpSyncTimer >= 0.65 && window.NeonCloud && mpRoomCode) {
+          if (mpSyncTimer >= 0.15 && window.NeonCloud && mpRoomCode) {
             mpSyncTimer = 0;
             window.NeonCloud.syncPlayerState(mpRoomCode, mpIsHost, currentLane, score);
           }
@@ -1571,7 +1623,7 @@
           hudPowerupTimer.textContent = shieldRemaining.toFixed(1) + 's';
         } else if (magnetBoostRemaining > 0) {
           hudPowerupBar.classList.remove('hidden');
-          hudPowerupLabel.textContent = '🧲 Super Magnet Active';
+          hudPowerupLabel.textContent = '🧲 Lane Magnet Active';
           hudPowerupTimer.textContent = magnetBoostRemaining.toFixed(1) + 's';
         } else {
           hudPowerupBar.classList.add('hidden');
@@ -1598,7 +1650,7 @@
  
           activeBoss.moveTimer -= dt;
           if (activeBoss.moveTimer <= 0) {
-            activeBoss.lane = Math.floor(Math.random() * 3);
+            activeBoss.lane = Math.floor(Math.random() * laneCount);
             activeBoss.moveTimer = Math.max(0.55, 1.1 - bossLevel * 0.06);
           }
  
@@ -1606,8 +1658,8 @@
           if (activeBoss.fireTimer <= 0) {
             activeBoss.salvoCount = (activeBoss.salvoCount || 0) + 1;
             if (activeBoss.pattern === 'double') {
-              const safeLane = (activeBoss.lane + 1 + Math.floor(Math.random() * 2)) % 3;
-              for (let l = 0; l < 3; l++) {
+              const safeLane = (activeBoss.lane + 1 + Math.floor(Math.random() * (laneCount - 1))) % laneCount;
+              for (let l = 0; l < laneCount; l++) {
                 if (l !== safeLane) {
                   entities.push({
                     type: 'obstacle',
@@ -1623,7 +1675,7 @@
               activeBoss.fireTimer = Math.max(0.75, 1.25 - bossLevel * 0.05) * 1.10;
             } else if (activeBoss.pattern === 'burst') {
               if (activeBoss.salvoCount % 2 === 0) {
-                [0, 2].forEach(l => {
+                [0, laneCount - 1].forEach(l => {
                   entities.push({
                     type: 'obstacle',
                     lane: l,
@@ -1717,39 +1769,31 @@
           }
         }
  
-        spawnTimer -= dt;
-        if (spawnTimer <= 0) {
+        if (isMultiplayerMatch) {
+          advanceCircuit(effectiveSpeed * dt);
+        } else {
+          spawnTimer -= dt;
+          if (spawnTimer <= 0) {
           spawnWave();
           if (selectedGameMode === 'BOSS_10') {
             spawnTimer = Math.max(0.54, 1.15 - (effectiveSpeed - 215) / 420);
           } else {
             spawnTimer = Math.max(0.46, 1.08 - (effectiveSpeed - 235) / 420);
           }
+          }
         }
- 
-        const magnetRadius = magnetBoostRemaining > 0
-          ? w * 0.9
-          : 28 + (saveState.magnetLevel - 1) * 26;
  
         for (let i = entities.length - 1; i >= 0; i--) {
           const e = entities[i];
           e.y += (e.bossShot ? effectiveSpeed * 1.15 : effectiveSpeed) * dt;
-          const ex = e.customX !== undefined ? e.customX : getLaneCenterX(e.lane);
- 
-          if (e.type === 'coin' && !e.hit) {
-            const dx = playerX - ex;
-            const dy = playerY - e.y;
-            const dist = Math.hypot(dx, dy);
-            if (dist < magnetRadius + 40) {
-              e.customX = ex + dx * dt * (magnetBoostRemaining > 0 ? 11 : 8);
-            }
-          }
- 
-          const curX = e.customX !== undefined ? e.customX : getLaneCenterX(e.lane);
+          const curX = e.type === 'coin' ? getLaneCenterX(e.lane) : (e.customX !== undefined ? e.customX : getLaneCenterX(e.lane));
           const distX = Math.abs(curX - playerX);
           const distY = Math.abs(e.y - playerY);
  
-          if (!e.hit && distX < 28 && distY < 28) {
+          const touching = e.type === 'coin'
+            ? canCollectCoin(e)
+            : distX < 28 && distY < 28;
+          if (!e.hit && touching) {
             if (e.type === 'coin') {
               e.hit = true;
               sessionCoins += 1;
@@ -1761,7 +1805,9 @@
               sfxCoin();
               advanceMission('collect_coins', 1);
               writeSave();
-              addBurst(curX, e.y, '#fbbf24', 9);
+              // Cosmetic only: the coin is already touching and collected.
+              // Capture the endpoint so it cannot chase a later lane change.
+              coinPickups.push({ x: curX, y: e.y, toX: playerX, toY: playerY - 8, age: 0 });
               addFloatingText(curX, e.y - 10, '+1', '#fde047');
               updateUIStats();
             } else if (e.type === 'gate') {
@@ -1784,7 +1830,7 @@
               magnetBoostRemaining = 7.0;
               sfxShield();
               addBurst(curX, e.y, '#34d399', 15);
-              addFloatingText(curX, e.y - 12, '🧲 MAGNET 7s!', '#6ee7b7');
+              addFloatingText(curX, e.y - 12, '🧲 LANE MAGNET 7s!', '#6ee7b7');
             } else if (e.type === 'turbo') {
               e.hit = true;
               turboBoostRemaining = 4.5;
@@ -1814,6 +1860,15 @@
           }
         }
  
+        for (let i = coinPickups.length - 1; i >= 0; i--) {
+          const pickup = coinPickups[i];
+          pickup.age += dt;
+          if (pickup.age >= 0.12) {
+            addBurst(pickup.toX, pickup.toY, '#fbbf24', 3);
+            coinPickups.splice(i, 1);
+          }
+        }
+
         for (let i = particles.length - 1; i >= 0; i--) {
           const p = particles[i];
           p.x += p.vx * dt;
@@ -1887,7 +1942,7 @@
  
         for (let i = 0; i < entities.length; i++) {
           const e = entities[i];
-          const ex = e.customX !== undefined ? e.customX : getLaneCenterX(e.lane);
+          const ex = e.type === 'coin' ? getLaneCenterX(e.lane) : (e.customX !== undefined ? e.customX : getLaneCenterX(e.lane));
  
           if (e.type === 'coin') {
             ctx.save();
@@ -2068,8 +2123,14 @@
         // Opponent ghost spaceship in 1v1 Online Mode
         if (isMultiplayerMatch && gameState === 'PLAYING') {
           for (const opponent of mpOpponents.filter(p => p.alive && p.connected)) {
-          const mpOpponentSkin = opponent.skin, mpOpponentScore = opponent.score, mpOpponentName = opponent.name, mpOpponentLane = opponent.lane;
-          const mpOpponentX = getLaneCenterX(opponent.lane);
+          const mpOpponentSkin = opponent.skin, mpOpponentName = opponent.name, mpOpponentLane = opponent.lane;
+          const now = performance.now();
+          const view = mpGhostViews.get(opponent.id) || { x: getLaneCenterX(opponent.lane), score: opponent.score, at: now };
+          const blend = 1 - Math.exp(-Math.max(0, now - view.at) / 85);
+          view.x += (getLaneCenterX(opponent.lane) - view.x) * blend;
+          view.score += (opponent.score - view.score) * blend;
+          view.at = now; mpGhostViews.set(opponent.id, view);
+          const mpOpponentX = view.x, mpOpponentScore = view.score;
           const oppSkin = SKINS.find(s => s.id === mpOpponentSkin) || SKINS[1];
           ctx.save();
           const relativeY = playerY - (mpOpponentScore - score) * 0.65;
@@ -2140,6 +2201,19 @@
         ctx.fill();
         ctx.restore();
  
+        for (const pickup of coinPickups) {
+          const t = Math.min(1, pickup.age / 0.12);
+          const ease = 1 - (1 - t) ** 3;
+          const x = pickup.x + (pickup.toX - pickup.x) * ease;
+          const y = pickup.y + (pickup.toY - pickup.y) * ease;
+          ctx.save();
+          ctx.globalAlpha = 1 - t * 0.6;
+          ctx.fillStyle = '#fbbf24';
+          ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 8;
+          ctx.beginPath(); ctx.arc(x, y, 11 * (1 - t * 0.7), 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i];
           ctx.save();
@@ -2517,6 +2591,13 @@
       }
  
       const btnModeBoss = document.getElementById('btn-mode-boss');
+      document.getElementById('solo-lanes').value = String(soloLaneCount);
+      document.getElementById('solo-lanes').addEventListener('change', e => {
+        soloLaneCount = validLaneCount(e.target.value);
+        saveState.laneCount = soloLaneCount; writeSave();
+        laneCount = soloLaneCount; currentLane = Math.floor(laneCount / 2);
+        targetX = playerX = getLaneCenterX(currentLane); drawScene();
+      });
       const btnModeFree = document.getElementById('btn-mode-free');
       const modeDescBanner = document.getElementById('mode-desc-banner');
  
@@ -2629,7 +2710,9 @@
           mpOpponents = room.players.filter(p => p.id !== cloud.myId);
           const opponent = mpOpponents[0];
           if (opponent) { mpOpponentName = opponent.name; mpOpponentSkin = opponent.skin; mpOpponentLane = opponent.lane; mpOpponentScore = opponent.score; }
-          document.getElementById('mp-room-status-text').textContent = room.players.length + '/' + room.capacity + ' players connected. ' + (room.notice || 'Waiting for everyone…');
+          document.getElementById('mp-lanes').value = String(validLaneCount(room.lanes));
+          document.getElementById('mp-lanes').disabled = true;
+          document.getElementById('mp-room-status-text').textContent = room.players.length + '/' + room.capacity + ' players connected · ' + validLaneCount(room.lanes) + ' lanes. ' + (room.notice || 'Waiting for everyone…');
           if (isMultiplayerMatch) hudMpOpponentText.textContent = mpOpponents.map(p => p.name + (p.alive && p.connected ? ': ' + p.score : ': OUT')).join(' • ');
           if (['countdown', 'playing'].includes(room.status) && room.round !== mpRoundId) {
             mpRoundId = room.round; startNewGame(true);
@@ -2654,6 +2737,27 @@
       document.getElementById('btn-rematch-cancel').addEventListener('click', () => window.NeonCloud.cancelRematch());
       document.getElementById('btn-cancel-countdown').addEventListener('click', () => window.NeonCloud.cancelRematch());
 
+      let mpConnecting = false, mpAttempt = 0, mpConnectionError = false;
+      function updateConnectionBadge() {
+        document.getElementById('mp-cloud-status').textContent = mpConnectionError ? '● Not connected' : mpConnecting ? '● Connecting…' : window.NeonCloud?.room ? '● Room connected' : '● Ready to connect';
+      }
+      function setConnectionMessage(message, error = false) {
+        mpConnectionError = error;
+        const el = document.getElementById('mp-connection-message');
+        el.textContent = message;
+        el.style.color = error ? '#fda4af' : '#a5f3fc';
+        updateConnectionBadge();
+      }
+      function setConnectionBusy(busy) {
+        mpConnecting = busy;
+        document.getElementById('btn-create-room').disabled = busy;
+        document.getElementById('btn-join-room').disabled = busy;
+        document.getElementById('mp-room-size').disabled = busy;
+        document.getElementById('mp-lanes').disabled = busy || !!window.NeonCloud?.room;
+        document.getElementById('btn-join-room').textContent = busy ? 'CONNECTING…' : 'JOIN ▶';
+        updateConnectionBadge();
+      }
+      if (window.NeonCloud) window.NeonCloud.onStatus = message => setConnectionMessage(message);
       document.getElementById('btn-open-multiplayer').addEventListener('click', () => {
         if (!saveState.username || saveState.username.length < 2) {
           checkFirstTimeUsernamePrompt();
@@ -2662,6 +2766,8 @@
         sfxMove();
         updateUIStats();
         document.getElementById('mp-created-room-box').classList.add('hidden');
+        document.getElementById('mp-lanes').disabled = false;
+        setConnectionMessage('The host must keep this room open while friends join.');
         overlayMenu.classList.add('hidden');
         overlayMultiplayer.classList.remove('hidden');
         gameState = 'MULTIPLAYER';
@@ -2669,6 +2775,7 @@
  
       document.getElementById('btn-close-multiplayer').addEventListener('click', () => {
         sfxMove();
+        mpAttempt++; setConnectionBusy(false);
         if (window.NeonCloud) window.NeonCloud.stopListeningRoom();
         overlayMultiplayer.classList.add('hidden');
         overlayMenu.classList.remove('hidden');
@@ -2676,24 +2783,33 @@
       });
  
       document.getElementById('btn-create-room').addEventListener('click', async () => {
+        if (mpConnecting) return;
         if (!window.NeonCloud || !window.NeonCloud.ready) {
+          setConnectionMessage('Online library not loaded. Check your connection and reload!', true);
           showToast('Online library not loaded. Check your connection and reload!');
           return;
         }
         const code = generateRoomCode();
+        const attempt = ++mpAttempt;
+        setConnectionBusy(true);
+        document.getElementById('mp-created-room-box').classList.add('hidden');
         try {
           mpIsHost = true;
           mpRoomCode = code;
           mpRoundId = 0;
-          await window.NeonCloud.createRoom(code, saveState.username || 'Pilot', saveState.selectedSkin, document.getElementById('mp-room-size').value);
+          await window.NeonCloud.createRoom(code, saveState.username || 'Pilot', saveState.selectedSkin, document.getElementById('mp-room-size').value, document.getElementById('mp-lanes').value);
+          if (attempt !== mpAttempt) return;
+          setConnectionMessage('Room ready. Share this code and keep this page open.');
           document.getElementById('mp-room-code-display').textContent = code;
           document.getElementById('mp-created-room-box').classList.remove('hidden');
           attachRoomListener(code);
           sfxReward();
           showToast('Room ' + code + ' created! Share the code with your friend.');
         } catch (err) {
+          if (attempt !== mpAttempt) return;
+          setConnectionMessage(err.message, true);
           showToast('Could not create room: ' + err.message);
-        }
+        } finally { if (attempt === mpAttempt) setConnectionBusy(false); }
       });
  
       document.getElementById('btn-copy-room-code').addEventListener('click', async () => {
@@ -2718,20 +2834,28 @@
       });
  
       document.getElementById('btn-join-room').addEventListener('click', async () => {
+        if (mpConnecting) return;
         if (!window.NeonCloud || !window.NeonCloud.ready) {
+          setConnectionMessage('Online library not loaded. Check your connection and reload!', true);
           showToast('Online library not loaded. Check your connection and reload!');
           return;
         }
         const inp = document.getElementById('input-join-code');
-        const code = (inp ? inp.value : '').trim().toUpperCase();
-        if (code.length < 4) {
+        const code = (inp ? inp.value : '').replace(/\s/g, '').toUpperCase();
+        if (!/^[A-Z0-9]{5}$/.test(code)) {
+          setConnectionMessage('Enter the 5-character code shown on the host screen.', true);
           showToast('Enter a valid 5-letter room code!');
           return;
         }
+        const attempt = ++mpAttempt;
+        setConnectionBusy(true);
+        document.getElementById('mp-created-room-box').classList.add('hidden');
         try {
           mpIsHost = false;
           mpRoomCode = code;
           const roomData = await window.NeonCloud.joinRoom(code, saveState.username || 'Pilot', saveState.selectedSkin);
+          if (attempt !== mpAttempt) return;
+          setConnectionMessage('Connected! Waiting for all players.');
           mpRoundId = 0;
           document.getElementById('mp-room-code-display').textContent = code;
           document.getElementById('mp-created-room-box').classList.remove('hidden');
@@ -2739,8 +2863,10 @@
           sfxReward();
           showToast('Room joined. The match starts when everyone is connected.');
         } catch (err) {
+          if (attempt !== mpAttempt) return;
+          setConnectionMessage(err.message || 'Could not join the room. Please try again.', true);
           showToast('❌ ' + (err.message || 'Room not found'));
-        }
+        } finally { if (attempt === mpAttempt) setConnectionBusy(false); }
       });
  
       document.getElementById('btn-pause-game').addEventListener('click', () => {
@@ -2980,5 +3106,5 @@
       startLoop();
     })();
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a555897ddbd64afd',t:'MTc5MzgxNTQyMw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a555897ddbd64afd',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
